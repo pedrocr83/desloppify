@@ -19,7 +19,7 @@ These have custom detectors, language-specific smell analysis, subjective review
 
 For C/C++ setup requirements for a full tool-backed scan, see `cxx/README.md`.
 
-Example: `python/` — see `python/__init__.py` for the full plugin registration flow (`register_full_plugin(...)`) with 15+ detector phases, custom extractors, security hooks, and review guidance.
+Example: `python/`. See `python/__init__.py` for the full plugin registration flow (`register_full_plugin(...)`) with 15+ detector phases, custom extractors, security hooks, and review guidance.
 
 ## Generic Plugins
 
@@ -43,13 +43,13 @@ These are single-file plugins (~20-40 lines) that call `generic_lang()` with ext
 | Zig | `zig/` | zig build | functions, imports |
 | Nim | `nim/` | nim check | functions |
 | PowerShell | `powershell/` | PSScriptAnalyzer | functions |
-| R | `r/` | — | functions, imports |
+| R | `r/` | (none) | functions, imports |
 | Erlang | `erlang/` | dialyzer | functions, imports |
 | OCaml | `ocaml/` | ocaml compiler | functions, modules, imports |
 | F# | `fsharp/` | dotnet build | functions, imports |
 | Julia | `julia/` | JuliaFormatter | functions, imports |
 
-Example: `ruby/__init__.py` — wraps rubocop and tree-sitter import/function support as a generic plugin.
+Example: `ruby/__init__.py` wraps rubocop and tree-sitter import/function support as a generic plugin.
 
 ## What Each Tier Gets
 
@@ -115,15 +115,15 @@ Only needed when you want things generic plugins can't provide: custom per-line 
 
 The path is incremental:
 
-1. **Start generic** — `generic_lang()` with tool specs + tree-sitter
-2. **Extend in-place** — add zone rules, test coverage hooks, security hooks (stays generic)
-3. **Go full** — when you need custom detectors or fixers, switch to `register_full_plugin(...)` with a package directory
+1. **Start generic**: `generic_lang()` with tool specs + tree-sitter
+2. **Extend in-place**: add zone rules, test coverage hooks, security hooks (stays generic)
+3. **Go full**: when you need custom detectors or fixers, switch to `register_full_plugin(...)` with a package directory
 
 Bootstrap: `desloppify dev scaffold-lang <name> --extension .ext --marker <root-marker>`
 
 Required package structure (validated at registration): `__init__.py`, `commands.py`, `extractors.py`, `phases.py`, `move.py`, `review.py`, `test_coverage.py`, plus `detectors/`, `fixers/`, and `tests/` directories.
 
-A full plugin can still reuse generic building blocks — `_run_tool()` for external tools, tree-sitter extractors, shared phase builders (`detector_phase_security()`, `detector_phase_test_coverage()`, `shared_subjective_duplicates_tail()`).
+A full plugin can still reuse generic building blocks: `_run_tool()` for external tools, tree-sitter extractors, shared phase builders (`detector_phase_security()`, `detector_phase_test_coverage()`, `shared_subjective_duplicates_tail()`).
 
 ## Shared Framework (`_framework/`)
 
@@ -182,7 +182,7 @@ should stay on grouped `analysis/`, `imports/`, and `specs/` namespaces.
 - Import direction: `languages/<name>/` → `engine/detectors/` and `languages/_framework/*`. Never the reverse.
 - Keep language plugin code in its language folder
 - Keep reusable cross-language framework code in `_framework/`
-- Generic plugins should NOT mirror the full plugin directory structure — they are intentionally minimal
+- Generic plugins should NOT mirror the full plugin directory structure; they are intentionally minimal
 
 ## Testing
 

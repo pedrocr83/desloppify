@@ -10,7 +10,7 @@ Use the native `--runner opencode` for automated batch reviews:
 desloppify review --run-batches --runner opencode --parallel --scan-after-import
 ```
 
-This spawns OpenCode subprocesses (`opencode run --format json`) for each batch, extracts results from the NDJSON stream, merges them, and imports as trusted assessments — identical pipeline to the Codex runner but using OpenCode as the execution engine.
+This spawns OpenCode subprocesses (`opencode run --format json`) for each batch, extracts results from the NDJSON stream, merges them, and imports as trusted assessments: the same pipeline as the Codex runner but using OpenCode as the execution engine.
 
 #### Warm server mode (optional, recommended for parallel runs)
 
@@ -26,7 +26,7 @@ When `DESLOPPIFY_OPENCODE_ATTACH` is set, each batch subprocess attaches to the 
 
 #### Preparing a review manually
 
-1. **Prepare**: `desloppify review --prepare` — writes `query.json` and `.desloppify/review_packet_blind.json`.
+1. **Prepare**: `desloppify review --prepare` writes `query.json` and `.desloppify/review_packet_blind.json`.
 2. **Run batches**: `desloppify review --run-batches --runner opencode --parallel --scan-after-import`
 
 The runner handles batch splitting, prompt generation, parallel execution, retry/stall detection, result extraction, merge, and trusted import automatically.

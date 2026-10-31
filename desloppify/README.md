@@ -1,6 +1,6 @@
-# Desloppify — Technical Internals
+# Desloppify: Technical Internals
 
-Traditional tools catch mechanical issues — linters, formatters, dead code finders. Desloppify wraps those but the point is **subjective analysis**: structured LLM prompts about architecture, design quality, and convention consistency, tracked as scored findings. The score weights subjective findings heavily because that's what actually moves the needle. See the top-level README for philosophy and usage.
+Traditional tools catch mechanical issues: linters, formatters, dead code finders. Desloppify wraps those but the point is **subjective analysis**: structured LLM prompts about architecture, design quality, and convention consistency, tracked as scored findings. The score weights subjective findings heavily because that's what actually moves the needle. See the top-level README for philosophy and usage.
 
 ## Directory Layout
 
@@ -64,12 +64,12 @@ Layer 4: app/                    CLI commands. Thin entry points delegating to e
 - **Finding**: A detected issue (`TypedDict` in `state.py`). Has detector, tier, category, file, description.
 - **Detector**: A named analysis algorithm. Registry in `base/registry.py`.
 - **Tier**: Severity T1–T4 (T4 = architectural, highest weight). Enum in `base/enums.py`.
-- **Zone**: File intent classification — production/test/config/generated/script/vendor. Deterministic path-based.
+- **Zone**: File intent classification: production/test/config/generated/script/vendor. Deterministic path-based.
 - **Dimension**: A subjective quality axis (naming, structure, patterns, etc.) scored by LLM review.
-- **Phase**: A scan stage — structural, style, security, etc. Each phase runs extractors → detectors → normalization.
+- **Phase**: A scan stage: structural, style, security, etc. Each phase runs extractors → detectors → normalization.
 - **Narrative**: Coaching layer that computes phase/headline/actions/reminders from scan state.
 - **Concern**: A logical grouping of related findings (e.g. "unused code in auth module").
-- **Plan**: Prioritized work queue in `.desloppify/plan.json` — ordered, clustered, with overrides.
+- **Plan**: Prioritized work queue in `.desloppify/plan.json`: ordered, clustered, with overrides.
 
 ## Data Flow
 
@@ -84,9 +84,9 @@ detect:  LangConfig.detect_commands[name](args) → display
 
 ## Contracts
 
-**Detector**: `detect_*(data, config) → list[dict]` — generic algorithm, no language assumptions.
+**Detector**: `detect_*(data, config) → list[dict]`: generic algorithm, no language assumptions.
 
-**Phase runner**: `_phase_*(path, lang) → (list[Finding], dict[str, int])` — thin orchestrator calling extractors → generic algorithms → normalization.
+**Phase runner**: `_phase_*(path, lang) → (list[Finding], dict[str, int])`: thin orchestrator calling extractors → generic algorithms → normalization.
 
 **LangConfig**: Static language contract. Owns phases, detectors, thresholds, hooks.
 
@@ -94,18 +94,18 @@ detect:  LangConfig.detect_commands[name](args) → display
 
 ## Rules
 
-- Entry command modules stay thin — behavioral logic in delegated modules
+- Entry command modules stay thin; behavioral logic lives in delegated modules
 - Prefer narrow plan surfaces (`engine.plan_state`, `engine.plan_ops`, `engine.plan_triage`, `engine.planning`) over `engine.plan` in new code
 - Dynamic imports only in `languages/__init__.py` (discovery) and `engine/hook_registry.py` (hooks)
 - Persistent schema is owned by `engine/_state/`; `state.py` is compatibility-only. Command modules don't introduce ad-hoc persisted fields
 - `LangRun` owns per-run mutable state, not `LangConfig`
-- `base/` has zero upward imports — it never imports from `engine/`, `app/`, `intelligence/`, or `languages/`
+- `base/` has zero upward imports; it never imports from `engine/`, `app/`, `intelligence/`, or `languages/`
 
 ## Where Do I Put This?
 
-- **New detector**: `engine/detectors/` — pure algorithm, no language imports
-- **New command**: `app/commands/` — thin entry point, delegate logic to engine/intelligence
-- **New language plugin**: `languages/<name>/` — implement `LangConfig`, add phases
+- **New detector**: `engine/detectors/`: pure algorithm, no language imports
+- **New command**: `app/commands/`: thin entry point, delegate logic to engine/intelligence
+- **New language plugin**: `languages/<name>/`: implement `LangConfig`, add phases
 - **Path resolution / file helpers**: `base/discovery/`
 - **Scoring constants**: `base/scoring_constants.py`
 - **Configuration helpers**: `base/config.py`

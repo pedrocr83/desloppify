@@ -14,9 +14,9 @@ description: >
 
 ## 1. Your Job
 
-Maximise the **strict score** honestly. Your main cycle: **scan → plan → execute → rescan**. Follow the scan output's **INSTRUCTIONS FOR AGENTS** — don't substitute your own analysis.
+Maximise the **strict score** honestly. Your main cycle: **scan → plan → execute → rescan**. Follow the scan output's **INSTRUCTIONS FOR AGENTS**; don't substitute your own analysis.
 
-**Don't be lazy.** Do large refactors and small detailed fixes with equal energy. If it takes touching 20 files, touch 20 files. If it's a one-line change, make it. No task is too big or too small — fix things properly, not minimally.
+**Don't be lazy.** Do large refactors and small detailed fixes with equal energy. If it takes touching 20 files, touch 20 files. If it's a one-line change, make it. No task is too big or too small: fix things properly, not minimally.
 
 ## 2. The Workflow
 
@@ -24,7 +24,7 @@ Three phases, repeated as a cycle.
 
 ### Monorepos and multi-project directories
 
-If the workspace contains multiple programs (e.g., frontend + backend in sibling folders), scan each one separately — do not scan the parent directory:
+If the workspace contains multiple programs (e.g., frontend + backend in sibling folders), scan each one separately; do not scan the parent directory:
 
 ```bash
 desloppify --lang typescript scan --path ./frontend
@@ -33,23 +33,23 @@ desloppify --lang python scan --path ./backend
 
 Each `--path` target should be a single coherent project. Scanning a parent that contains multiple programs mixes state and path context, producing unreliable results.
 
-### Phase 1: Scan and review — understand the codebase
+### Phase 1: Scan and review (understand the codebase)
 
 ```bash
 desloppify scan --path .       # analyse the codebase
-desloppify status              # check scores — are we at target?
+desloppify status              # check scores: are we at target?
 ```
 
-After scanning, **always run `desloppify next`** — it tells you exactly what to do, in order. Don't interpret the scan output yourself or ask the user what to do. Just run `next` and follow its instructions.
+After scanning, **always run `desloppify next`**; it tells you exactly what to do, in order. Don't interpret the scan output yourself or ask the user what to do. Just run `next` and follow its instructions.
 
 The scan will tell you if subjective dimensions need review. Follow its instructions. To trigger a review manually:
 ```bash
 desloppify review --prepare    # then follow your runner's review workflow
 ```
 
-### Phase 2: Plan — decide what to work on
+### Phase 2: Plan (decide what to work on)
 
-After reviews, triage stages and plan creation appear in the execution queue surfaced by `next`. Complete them in order — `next` tells you what each stage expects in the `--report`:
+After reviews, triage stages and plan creation appear in the execution queue surfaced by `next`. Complete them in order; `next` tells you what each stage expects in the `--report`:
 ```bash
 desloppify next                                        # shows the next execution workflow step
 desloppify plan triage --stage observe --report "themes and root causes..."
@@ -60,22 +60,22 @@ desloppify plan triage --complete --strategy "execution plan..."
 
 For automated triage: `desloppify plan triage --run-stages --runner codex` (Codex), `--runner claude` (Claude), or `--runner rovodev` (Rovo Dev). Options: `--only-stages`, `--dry-run`, `--stage-timeout-seconds`.
 
-Then shape the queue. **The plan shapes everything `next` gives you** — `next` is the execution queue, not the full backlog. Don't skip this step.
+Then shape the queue. **The plan shapes everything `next` gives you**: `next` is the execution queue, not the full backlog. Don't skip this step.
 
 ```bash
 desloppify plan                          # see the living plan details
 desloppify plan queue                    # compact execution queue view
-desloppify plan reorder <pat> top        # reorder — what unblocks the most?
+desloppify plan reorder <pat> top        # reorder: what unblocks the most?
 desloppify plan cluster create <name>    # group related issues to batch-fix
 desloppify plan focus <cluster>          # scope next to one cluster
-desloppify plan skip <pat>              # defer — hide from next
+desloppify plan skip <pat>              # defer: hide from next
 ```
 
-### Phase 3: Execute — grind the queue to completion
+### Phase 3: Execute (grind the queue to completion)
 
-Trust the plan and execute. Don't rescan mid-queue — finish the queue first.
+Trust the plan and execute. Don't rescan mid-queue; finish the queue first.
 
-**Branch first.** Create a dedicated branch — never commit health work directly to main:
+**Branch first.** Create a dedicated branch; never commit health work directly to main:
 ```bash
 git checkout -b desloppify/code-health    # or desloppify/<focus-area>
 desloppify config set commit_pr 42        # link a PR for auto-updated descriptions
@@ -100,7 +100,7 @@ git push -u origin desloppify/code-health
 # 6. Repeat until the queue is empty
 ```
 
-Score may temporarily drop after fixes — cascade effects are normal, keep going.
+Score may temporarily drop after fixes; cascade effects are normal, keep going.
 If `next` suggests an auto-fixer, run `desloppify autofix <fixer> --dry-run` to preview, then apply.
 
 **When the queue is clear, go back to Phase 1.** New issues will surface, cascades will have resolved, priorities will have shifted. This is the cycle.
@@ -118,8 +118,8 @@ If `next` suggests an auto-fixer, run `desloppify autofix <fixer> --dry-run` to 
 
 Overall score = **25% mechanical** + **75% subjective**.
 
-- **Mechanical (25%)**: auto-detected issues — duplication, dead code, smells, unused imports, security. Fixed by changing code and rescanning.
-- **Subjective (75%)**: design quality review — naming, error handling, abstractions, clarity. Starts at **0%** until reviewed. The scan will prompt you when a review is needed.
+- **Mechanical (25%)**: auto-detected issues: duplication, dead code, smells, unused imports, security. Fixed by changing code and rescanning.
+- **Subjective (75%)**: design quality review: naming, error handling, abstractions, clarity. Starts at **0%** until reviewed. The scan will prompt you when a review is needed.
 - **Strict score** is the north star: wontfix items count as open. The gap between overall and strict is your wontfix debt.
 - **Score types**: overall (lenient), strict (wontfix counts), objective (mechanical only), verified (confirmed fixes only).
 
@@ -127,9 +127,9 @@ Overall score = **25% mechanical** + **75% subjective**.
 
 Four paths to get subjective scores:
 
-- **Local runner (Codex)**: `desloppify review --run-batches --runner codex --parallel --scan-after-import` — automated end-to-end.
-- **Local runner (Claude)**: `desloppify review --prepare` → launch parallel subagents → `desloppify review --import merged.json` — see skill doc overlay for details.
-- **Local runner (Rovo Dev)**: `desloppify review --run-batches --runner rovodev --parallel --scan-after-import` — automated end-to-end via `acli rovodev run` subprocesses.
+- **Local runner (Codex)**: `desloppify review --run-batches --runner codex --parallel --scan-after-import`, automated end-to-end.
+- **Local runner (Claude)**: `desloppify review --prepare` → launch parallel subagents → `desloppify review --import merged.json`; see the skill doc overlay for details.
+- **Local runner (Rovo Dev)**: `desloppify review --run-batches --runner rovodev --parallel --scan-after-import`, automated end-to-end via `acli rovodev run` subprocesses.
 - **Cloud/external**: `desloppify review --external-start --external-runner claude` → follow session template → `--external-submit`.
 - **Manual path**: `desloppify review --prepare` → review per dimension → `desloppify review --import file.json`.
 
@@ -137,12 +137,12 @@ Four paths to get subjective scores:
 
 **Subagent parallelism limit:** Do not launch every review batch at once. Run subagents in small waves, usually **3-5 concurrent agents**, and wait for a wave to finish before starting the next. If agents return empty, partial, or rate-limit-shaped results, reduce the wave size and retry only failed batches. Launching 20+ subagents at once can exhaust API quota and produce no usable review output.
 
-- Import first, fix after — import creates tracked state entries for correlation.
+- Import first, fix after: import creates tracked state entries for correlation.
 - Target-matching scores trigger auto-reset to prevent gaming. Use the blind-review workflow described in your agent overlay doc (e.g. `docs/CLAUDE.md`, `docs/HERMES.md`).
 - Even moderate scores (60-80) dramatically improve overall health.
-- Stale dimensions auto-surface in `next` — just follow the queue.
+- Stale dimensions auto-surface in `next`; just follow the queue.
 
-**Integrity rules:** Score from evidence only — no prior chat context, score history, or target-threshold anchoring. When evidence is mixed, score lower and explain uncertainty. Assess every requested dimension; never drop one.
+**Integrity rules:** Score from evidence only: no prior chat context, score history, or target-threshold anchoring. When evidence is mixed, score lower and explain uncertainty. Assess every requested dimension; never drop one.
 
 #### Review output format
 
@@ -175,7 +175,7 @@ Return machine-readable JSON for review imports. For `--external-submit`, includ
 
 #### Import paths
 
-- Robust session flow (recommended): `desloppify review --external-start --external-runner claude` → use generated prompt/template → run printed `--external-submit` command.
+- Session flow (recommended): `desloppify review --external-start --external-runner claude` → use generated prompt/template → run printed `--external-submit` command.
 - Durable scored import (legacy): `desloppify review --import findings.json --attested-external --attest "I validated this review was completed without awareness of overall score and is unbiased."`
 - Findings-only fallback: `desloppify review --import findings.json`
 
@@ -221,7 +221,7 @@ After resolving findings as `fixed`, the tool shows uncommitted work, committed 
 
 ### Agent directives
 
-Directives are messages shown to agents at lifecycle phase transitions — use them to switch models, set constraints, or give context-specific instructions.
+Directives are messages shown to agents at lifecycle phase transitions; use them to switch models, set constraints, or give context-specific instructions.
 
 ```bash
 desloppify directives                     # show all configured directives
@@ -279,7 +279,7 @@ desloppify scan --path . --reset-subjective       # reset subjective baseline to
 
 ## 4. Fix Tool Issues Upstream
 
-When desloppify itself appears wrong or inconsistent — a bug, a bad detection, a crash, confusing output — **fix it and open a PR**. If you can't confidently fix it, file an issue instead.
+When desloppify itself appears wrong or inconsistent (a bug, a bad detection, a crash, confusing output), **fix it and open a PR**. If you can't confidently fix it, file an issue instead.
 
 ### Fix and PR (preferred)
 
@@ -305,7 +305,7 @@ git add <files> && git commit -m "fix: <what and why>"
 git push -u origin fix/<short-description>
 gh pr create --title "fix: <short description>" --body "$(cat <<'EOF'
 ## Problem
-<what went wrong — include the command and output>
+<what went wrong, including the command and output>
 
 ## Fix
 <what you changed and why>
@@ -321,7 +321,7 @@ If the fix is unclear or the change needs discussion, open an issue at `https://
 
 ## Prerequisite
 
-`command -v desloppify >/dev/null 2>&1 && echo "desloppify: installed" || echo "NOT INSTALLED — run: uvx --from git+https://github.com/peteromallet/desloppify.git desloppify"`
+`command -v desloppify >/dev/null 2>&1 && echo "desloppify: installed" || echo "NOT INSTALLED, run: uvx --from git+https://github.com/peteromallet/desloppify.git desloppify"`
 
 If `uvx` is not available: `pip install desloppify[full] && desloppify setup`
 

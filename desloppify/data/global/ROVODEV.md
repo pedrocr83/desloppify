@@ -4,7 +4,7 @@ Desloppify is installed as a Rovo Dev skill at `.rovodev/skills/desloppify/SKILL
 
 ### Subagents
 
-Rovo Dev supports parallel subagents via the `invoke_subagents` tool. The `General Purpose` subagent inherits all of the parent's tools and is ideal for context-isolated subjective review batches and per-stage triage work. Concurrency caps for `invoke_subagents` are set by Rovo Dev itself and may evolve over time — see the manual fallback section below for the current per-call limit.
+Rovo Dev supports parallel subagents via the `invoke_subagents` tool. The `General Purpose` subagent inherits all of the parent's tools and is ideal for context-isolated subjective review batches and per-stage triage work. Concurrency caps for `invoke_subagents` are set by Rovo Dev itself and may evolve over time; see the manual fallback section below for the current per-call limit.
 
 ### Review workflow
 
@@ -20,7 +20,7 @@ desloppify review --run-batches --runner rovodev --parallel --scan-after-import
 #   --max-parallel-batches 6
 ```
 
-This spawns `acli rovodev run` subprocesses (one per batch), recovers the JSON payload from each agent's reply (or from the agent-written output file), merges them, and imports as trusted assessments — same end-to-end shape as the Codex / OpenCode runners (subprocess-per-batch → file-output → merge → trusted import), with the wire-level details adapted to `acli rovodev run`'s prompt-instructed output mode.
+This spawns `acli rovodev run` subprocesses (one per batch), recovers the JSON payload from each agent's reply (or from the agent-written output file), merges them, and imports as trusted assessments: the same end-to-end shape as the Codex / OpenCode runners (subprocess-per-batch → file-output → merge → trusted import), with the wire-level details adapted to `acli rovodev run`'s prompt-instructed output mode.
 
 Optional environment overrides:
 
@@ -41,7 +41,7 @@ If you prefer to drive batches from inside an existing Rovo Dev session, use the
    `.desloppify/subagents/runs/<run-id>/prompts/` and prints the run directory.
 
 2. Note the run id printed by step 1 (e.g. `20260509_122030`). Replace
-   `<run-id>` in the paths below with that real value before invoking —
+   `<run-id>` in the paths below with that real value before invoking;
    subagents do not share the parent's context, so passing the
    placeholder verbatim will leave them unable to find the prompt or
    know where to write their output.
@@ -87,7 +87,7 @@ If you prefer to drive batches from inside an existing Rovo Dev session, use the
 - Per-call `invoke_subagents` concurrency is bounded by Rovo Dev itself
   (currently up to 4 subagents per call). Check `/help invoke_subagents`
   if you suspect the limit has changed.
-- Subagents do not inherit parent conversation context — the prompt file and
+- Subagents do not inherit parent conversation context; the prompt file and
   the blind packet must contain everything they need.
 - Subagents must consume `.desloppify/review_packet_blind.json` (not full
   `query.json`) to avoid score anchoring.
@@ -140,7 +140,7 @@ Rovo Dev ships with first-class Atlassian (Jira / Confluence / Bitbucket)
 tooling. When triaging or planning desloppify work, you can pull related
 Jira issues, design docs, or PR history via the built-in Atlassian MCP
 toolset, or load the `full-context-mode` skill via the `/full-context`
-slash command for guided organisational research — no extra setup
+slash command for guided organisational research, no extra setup
 required.
 
 <!-- desloppify-overlay: rovodev -->

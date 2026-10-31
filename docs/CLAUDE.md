@@ -1,12 +1,12 @@
 ## Claude Code Overlay
 
-Use Claude subagents for subjective scoring work. **Do not use `--runner codex`** — use Claude subagents exclusively.
+Use Claude subagents for subjective scoring work. **Do not use `--runner codex`**; use Claude subagents exclusively.
 
 ### Review workflow
 
 Run `desloppify review --prepare` first to generate review data, then use Claude subagents:
 
-1. **Prepare**: `desloppify review --prepare` — writes `query.json` and `.desloppify/review_packet_blind.json`.
+1. **Prepare**: `desloppify review --prepare` writes `query.json` and `.desloppify/review_packet_blind.json`.
 2. **Launch subagents**: Split the review across N parallel Claude subagents (one message, multiple Task calls). Each agent reviews a subset of dimensions.
 3. **Merge & import**: Merge agent outputs, then `desloppify review --import merged.json --manual-override --attest "Claude subagents ran blind reviews against review_packet_blind.json" --scan-after-import`.
 
@@ -23,13 +23,13 @@ Run `desloppify review --prepare` first to generate review data, then use Claude
 
 ### Subagent rules
 
-1. Each agent must be context-isolated — do not pass conversation history or score targets.
+1. Each agent must be context-isolated: do not pass conversation history or score targets.
 2. Agents must consume `.desloppify/review_packet_blind.json` (not full `query.json`) to avoid score anchoring.
 
 ### Triage workflow
 
 Orchestrate triage with per-stage subagents:
-1. `desloppify plan triage --run-stages --runner claude` — prints orchestrator instructions
+1. `desloppify plan triage --run-stages --runner claude` prints orchestrator instructions
 2. For each stage (observe → reflect → organize → enrich):
    - Get prompt: `desloppify plan triage --stage-prompt <stage>`
    - Launch a subagent with that prompt

@@ -7,7 +7,7 @@ or you can invoke directly with `/desloppify`.
 ### Subagents
 
 Droid supports custom droids (subagents) for parallel work. Use the `worker`
-droid for delegating independent tasks — it inherits the project's tool
+droid for delegating independent tasks: it inherits the project's tool
 configuration and is ideal for parallel smell detection, file analysis,
 or cross-cutting refactoring work.
 
