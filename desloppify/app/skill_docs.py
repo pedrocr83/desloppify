@@ -10,13 +10,19 @@ from desloppify.base.discovery.paths import get_project_root
 
 # Bump this integer whenever docs/SKILL.md changes in a way that agents
 # should pick up (new commands, changed workflows, removed sections).
-SKILL_VERSION = 7
+SKILL_VERSION = 8
 
 SKILL_VERSION_RE = re.compile(r"<!--\s*desloppify-skill-version:\s*(\d+)\s*-->")
 SKILL_OVERLAY_RE = re.compile(r"<!--\s*desloppify-overlay:\s*(\w+)\s*-->")
 
 SKILL_BEGIN = "<!-- desloppify-begin -->"
 SKILL_END = "<!-- desloppify-end -->"
+
+# Bump when docs/DESLOP.md changes in a way agents should pick up.
+DESLOP_VERSION = 1
+DESLOP_VERSION_RE = re.compile(r"<!--\s*desloppify-deslop-version:\s*(\d+)\s*-->")
+DESLOP_BEGIN = "<!-- desloppify-deslop-begin -->"
+DESLOP_END = "<!-- desloppify-deslop-end -->"
 
 # Locations where the skill doc might be installed, relative to project root.
 SKILL_SEARCH_PATHS = (

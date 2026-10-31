@@ -8,7 +8,7 @@ description: >
 ---
 
 <!-- desloppify-begin -->
-<!-- desloppify-skill-version: 7 -->
+<!-- desloppify-skill-version: 8 -->
 
 # Desloppify
 
@@ -232,6 +232,10 @@ desloppify directives unset execute       # remove a directive
 ```
 
 Available phases: `execute`, `review`, `triage`, `workflow`, `scan` (and fine-grained variants like `review_initial`, `triage_postflight`, etc.).
+
+### Fixing slop findings
+
+Findings from the `slop` detector and the `ai_generated_debt` and `comment_quality` dimensions are cleanups. Use the `desloppify-deslop` skill installed next to this one: run the project checks first, read for intent before deleting, cut only what is certain, verify, then put the report in the resolve attestation.
 
 ### Quick reference
 
