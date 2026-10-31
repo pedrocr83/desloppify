@@ -61,7 +61,7 @@ _TEST_FILE_RES = (
 # Anchored to a class statement so prose like "class is an ImportError subclass"
 # in a comment does not count.
 _CUSTOM_EXCEPTION_RE = re.compile(
-    r"^\s*class\s+(\w+)\s*(?:\(([^)\n]*)\)|extends\s+([\w.]+))",
+    r"^\s*(?:export\s+)?(?:default\s+)?(?:abstract\s+)?class\s+(\w+)\s*(?:\(([^)\n]*)\)|extends\s+([\w.]+))",
     re.MULTILINE,
 )
 

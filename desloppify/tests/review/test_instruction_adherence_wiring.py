@@ -92,4 +92,5 @@ def test_prompt_mentions_instructions_when_dimension_selected():
     text = render_instructions_focus({"instruction_adherence"})
     assert "CODEBASE_INSTRUCTIONS.md" in text
     assert "CI-NNN::rule-unclear" in text
+    assert text.endswith("\n")
     assert "—" not in text
