@@ -159,3 +159,42 @@ def test_log_and_rethrow_python_syntax_error_is_skipped(tmp_path):
     (tmp_path / "m.py").write_text("def f(:\n    pass\n")
     entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
     assert entries == []
+
+
+def test_commented_out_code_ignores_prose_and_labels(tmp_path):
+    (tmp_path / "m.py").write_text(
+        "# Suppress noisy combinations:\n"
+        "# - LOW severity (very noisy)\n"
+        "# - MEDIUM severity (low signal)\n"
+        "# Matches: use App\\Models\\User;\n"
+        "# Matches: use App\\Models\\{User, Provider};\n"
+        "# Matches: use App\\Models\\User as UserModel;\n"
+        "# single_use:      {loc, sole_importer}\n"
+        "# orphaned:        {loc}\n"
+        "# review:          {reason, loc?}\n"
+        "x = 1\n"
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert [e["kind"] for e in entries] == []
+
+
+def test_commented_out_code_catches_assignments_and_calls(tmp_path):
+    (tmp_path / "m.py").write_text(
+        "# result = compute(rows)\n# cache[key] = result\n# emit(result)\nx = 1\n"
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert [(e["kind"], e["line"]) for e in entries] == [("commented_out_code", 1)]
+
+
+def test_marketing_prose_leverage_noun_is_not_marketing(tmp_path):
+    (tmp_path / "m.py").write_text(
+        '"""Leverage and strategy hint helpers."""\n# Leverage point (lowest dimension)\nx = 1\n'
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert entries == []
+
+
+def test_marketing_prose_leverage_verb_is_marketing(tmp_path):
+    (tmp_path / "m.py").write_text('"""Leverages the power of async IO."""\nx = 1\n')
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert [e["hits"] for e in entries] == [["leverages"]]

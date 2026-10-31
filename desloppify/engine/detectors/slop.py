@@ -133,11 +133,18 @@ def _narrating_comments(lines: list[str], prefix: str) -> list[dict]:
     return found
 
 
+# A comment line "looks like code" only with a strong syntactic signal. Lines
+# that merely end in ":" or ")" are usually prose (labels, bullet lists).
 _CODE_SHAPE_RE = re.compile(
-    r"(?:[;{})\]:]\s*$)|"
-    r"^(?:return|if|else|elif|for|while|def|class|const|let|var|import|from|try|"
-    r"except|catch|function|public|private|fn|func)\b"
+    r"^(?:return|raise|yield|throw|await|pass|break|continue)\b|"
+    r"^(?:import|from)\s+[\w.]+(?:\s+import\b.*)?$|"
+    r"^(?:if|elif|else|for|while|def|class|try|except|catch|function|fn|func|"
+    r"const|let|var|pub|public|private)\b[^?]*[(=:;{]\s*$|"
+    r"^[A-Za-z_][\w.\[\]'\"]*\s*(?:=|\+=|-=)\s*\S|"
+    r"^[A-Za-z_][\w.]*\(.*\)\s*;?$|"
+    r"[;{]\s*$|\}\);?\s*$"
 )
+_PROSE_LABEL_RE = re.compile(r"^(?:[A-Z][a-z]+:|[-*]\s)")
 _LICENSE_WORDS = ("copyright", "license", "licence", "spdx")
 _TODO_RE = re.compile(r"\b(?:TODO|FIXME)\b")
 _TODO_OWNED_RE = re.compile(
@@ -164,6 +171,7 @@ def _commented_out_code(lines: list[str], prefix: str) -> list[dict]:
         if (
             _is_directive(text)
             or any(word in lowered for word in _LICENSE_WORDS)
+            or _PROSE_LABEL_RE.match(text)
             or not _CODE_SHAPE_RE.search(text)
         ):
             flush()
@@ -186,11 +194,14 @@ def _generic_todos(lines: list[str], prefix: str) -> list[dict]:
 
 MARKETING_TERMS: tuple[str, ...] = (
     "robust", "seamless", "seamlessly", "powerful", "blazing", "blazingly",
-    "comprehensive", "cutting-edge", "leverage", "leverages", "empower", "empowers",
+    "comprehensive", "cutting-edge", "empower", "empowers",
     "fast-paced", "whether you're a beginner", "it's worth noting", "made with",
 )
+# "leverage" as a noun (a leverage point) is ordinary English; the verb is slop.
 _MARKETING_RE = re.compile(
-    r"\b(?:" + "|".join(re.escape(term) for term in MARKETING_TERMS) + r")\b",
+    r"\b(?:"
+    + "|".join(re.escape(term) for term in MARKETING_TERMS)
+    + r"|leverag(?:es|ing)|leverage (?:the|our|your|a|an|its))\b",
     re.IGNORECASE,
 )
 _TRIPLE_QUOTE_RE = re.compile(r'"""|\'\'\'')
