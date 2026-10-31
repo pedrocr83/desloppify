@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import textwrap
 
+import pytest
+
 
 def _detect(tmp_path, contents: str):
+    pytest.importorskip("tree_sitter_language_pack")
     from desloppify.languages._framework.treesitter.analysis.unused_imports import (
         detect_unused_imports,
     )
