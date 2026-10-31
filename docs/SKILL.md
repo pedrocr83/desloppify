@@ -8,7 +8,7 @@ description: >
 ---
 
 <!-- desloppify-begin -->
-<!-- desloppify-skill-version: 8 -->
+<!-- desloppify-skill-version: 9 -->
 
 # Desloppify
 
@@ -236,6 +236,19 @@ Available phases: `execute`, `review`, `triage`, `workflow`, `scan` (and fine-gr
 ### Fixing slop findings
 
 Findings from the `slop` detector and the `ai_generated_debt` and `comment_quality` dimensions are cleanups. Use the `desloppify-deslop` skill installed next to this one: run the project checks first, read for intent before deleting, cut only what is certain, verify, then put the report in the resolve attestation.
+
+### Project instructions
+
+`CODEBASE_INSTRUCTIONS.md` is the project's own written standard: conventions, packages, comment and commit style, each as a `CI-NNN` rule. Once imported, the `instruction_adherence` review dimension scores the code against it and `desloppify conform` reports adherence per rule.
+
+```bash
+desloppify instructions extract                    # evidence packet in .desloppify/instructions_packet.json
+# write CODEBASE_INSTRUCTIONS.md from the packet's `template` and `evidence` (rules only from evidence)
+desloppify instructions import CODEBASE_INSTRUCTIONS.md   # validate, record; --allow-partial to force
+desloppify instructions show                       # print it, warn if stale
+```
+
+Run `extract` when the user asks for the project's conventions, rules or a CODEBASE_INSTRUCTIONS.md, or before `conform`. Re-run it to revise: keep surviving rule ids, never reuse a retired id.
 
 ### Quick reference
 

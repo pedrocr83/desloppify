@@ -103,6 +103,10 @@ jobs:
 
 For monorepos, run one job or matrix entry per project path instead of scanning the workspace root. True incremental or diff-only scanning is not the supported model yet; compare full-codebase results across runs or enforce a project-level threshold.
 
+## Project instructions
+
+Desloppify can also hold your code to your own written standard. `desloppify instructions extract` gathers evidence about the project (dependency manifests, linter settings, naming and comment style, commit and PR conventions) into a packet; your agent turns it into `CODEBASE_INSTRUCTIONS.md`, one `CI-NNN` rule per line; `desloppify instructions import` validates and records it. From then on the `instruction_adherence` review dimension scores the code against those rules and `desloppify conform` reports adherence per rule.
+
 ## How it works
 
 ```
