@@ -132,8 +132,61 @@ def _narrating_comments(lines: list[str], prefix: str) -> list[tuple[int, str]]:
     return found
 
 
+_CODE_SHAPE_RE = re.compile(
+    r"(?:[;{})\]:]\s*$)|"
+    r"^(?:return|if|else|elif|for|while|def|class|const|let|var|import|from|try|"
+    r"except|catch|function|public|private|fn|func)\b"
+)
+_LICENSE_WORDS = ("copyright", "license", "licence", "spdx")
+_TODO_RE = re.compile(r"\b(?:TODO|FIXME)\b")
+_TODO_OWNED_RE = re.compile(
+    r"\((?:[A-Za-z][\w.-]*)\)|@[A-Za-z][\w-]*|\d{4}-\d{2}-\d{2}"
+)
+
+
+def _commented_out_code(lines: list[str], prefix: str) -> list[tuple[int, str]]:
+    found: list[tuple[int, str]] = []
+    run: list[tuple[int, str]] = []
+
+    def flush() -> None:
+        if len(run) >= 3:
+            found.append(run[0])
+        run.clear()
+
+    comment_lines = dict(iter_comment_lines(lines, prefix))
+    for line_no in range(1, len(lines) + 1):
+        text = comment_lines.get(line_no)
+        if text is None:
+            flush()
+            continue
+        lowered = text.lower()
+        if (
+            _is_directive(text)
+            or any(word in lowered for word in _LICENSE_WORDS)
+            or not _CODE_SHAPE_RE.search(text)
+        ):
+            flush()
+            continue
+        run.append((line_no, text))
+    flush()
+    return found
+
+
+def _generic_todos(lines: list[str], prefix: str) -> list[tuple[int, str]]:
+    found: list[tuple[int, str]] = []
+    for line_no, text in iter_comment_lines(lines, prefix):
+        if not _TODO_RE.search(text):
+            continue
+        if _TODO_OWNED_RE.search(text) or _TICKET_RE.search(text) or _URL_RE.search(text):
+            continue
+        found.append((line_no, text))
+    return found
+
+
 _RULES: tuple[tuple[str, Callable[[list[str], str], list[tuple[int, str]]]], ...] = (
     ("narrating_comment", _narrating_comments),
+    ("commented_out_code", _commented_out_code),
+    ("generic_todo", _generic_todos),
 )
 
 
