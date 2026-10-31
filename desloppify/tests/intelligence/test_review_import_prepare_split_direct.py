@@ -264,6 +264,7 @@ def test_collectors_scope_payload_parts_and_orchestration_helpers(monkeypatch, t
     dim_ctx = orchestration_mod._resolve_dimension_context(
         "python",
         SimpleNamespace(dimensions=["naming_quality"]),
+        state={},
         load_dimensions_for_lang_fn=lambda _name: (["naming_quality"], {"naming_quality": {"prompt": "x"}}, "sys"),
         resolve_dimensions_fn=lambda cli_dimensions, default_dimensions: cli_dimensions or default_dimensions,
         get_lang_guidance_fn=lambda _name: "guide",

@@ -5,9 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from desloppify.engine.concerns import cleanup_stale_dismissals, generate_concerns
 from desloppify.engine._state.merge import MergeScanOptions, merge_scan
 from desloppify.engine._state.schema import StateModel, utc_now
+from desloppify.engine.concerns import cleanup_stale_dismissals, generate_concerns
 from desloppify.engine.scoring import HOLISTIC_POTENTIAL
 from desloppify.intelligence.review.dimensions import normalize_dimension_name
 from desloppify.intelligence.review.dimensions.data import load_dimensions_for_lang
@@ -34,6 +34,9 @@ from desloppify.intelligence.review.importing.holistic_issue_flow import (
 )
 from desloppify.intelligence.review.importing.holistic_issue_flow import (
     validate_and_build_issues as _validate_and_build_issues,
+)
+from desloppify.intelligence.review.importing.instruction_rules import (
+    filter_instruction_findings,
 )
 from desloppify.intelligence.review.importing.payload import (
     ReviewImportEnvelope,
@@ -110,6 +113,8 @@ def import_holistic_issues(
         holistic_prompts,
         lang_name,
     )
+    review_issues, rule_skipped = filter_instruction_findings(review_issues, state)
+    skipped.extend(rule_skipped)
     imported_dimensions = _collect_imported_dimensions(
         issues_list=issues_list,
         review_issues=review_issues,
