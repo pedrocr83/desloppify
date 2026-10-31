@@ -8,6 +8,7 @@ state checks) belong to the LLM review dimensions.
 
 from __future__ import annotations
 
+import ast
 import logging
 import re
 from collections.abc import Callable, Iterator
@@ -232,11 +233,65 @@ def _marketing_prose(lines: list[str], prefix: str) -> list[dict]:
     return [{"line": first_line, "snippet": ", ".join(hits), "hits": hits}]
 
 
+_LOG_METHODS = frozenset(
+    {"debug", "info", "warning", "warn", "error", "exception", "critical", "log"}
+)
+_JS_LOG_RETHROW_RE = re.compile(
+    r"catch\s*\((\w+)\)\s*\{\s*(?:console\.\w+|logger?\.\w+|log\.\w+)\([^;]*\);\s*"
+    r"throw\s+\1;\s*\}",
+    re.S,
+)
+_JS_EXTENSIONS = frozenset({"js", "jsx", "ts", "tsx"})
+
+
+def _is_log_call(node: ast.stmt) -> bool:
+    if not isinstance(node, ast.Expr) or not isinstance(node.value, ast.Call):
+        return False
+    func = node.value.func
+    if isinstance(func, ast.Attribute):
+        return func.attr in _LOG_METHODS
+    return isinstance(func, ast.Name) and func.id == "print"
+
+
+def _python_log_and_rethrow(source: str) -> list[dict]:
+    try:
+        tree = ast.parse(source)
+    except (SyntaxError, ValueError):
+        return []
+    found: list[dict] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.ExceptHandler) or len(node.body) != 2:
+            continue
+        first, second = node.body
+        if _is_log_call(first) and isinstance(second, ast.Raise) and second.exc is None:
+            found.append({"line": node.lineno, "snippet": "log then bare raise"})
+    return found
+
+
+def _js_log_and_rethrow(source: str) -> list[dict]:
+    return [
+        {"line": source.count("\n", 0, match.start()) + 1, "snippet": "log then throw"}
+        for match in _JS_LOG_RETHROW_RE.finditer(source)
+    ]
+
+
+def _log_and_rethrow(lines: list[str], prefix: str, ext: str) -> list[dict]:
+    source = "\n".join(lines)
+    if ext == "py":
+        return _python_log_and_rethrow(source)
+    if ext in _JS_EXTENSIONS:
+        return _js_log_and_rethrow(source)
+    return []
+
+
 _RULES: tuple[tuple[str, Callable[[list[str], str], list[dict]]], ...] = (
     ("narrating_comment", _narrating_comments),
     ("commented_out_code", _commented_out_code),
     ("generic_todo", _generic_todos),
     ("marketing_prose", _marketing_prose),
+)
+_EXT_RULES: tuple[tuple[str, Callable[[list[str], str, str], list[dict]]], ...] = (
+    ("log_and_rethrow", _log_and_rethrow),
 )
 
 
@@ -260,9 +315,16 @@ def detect_slop(path: Path, file_finder) -> tuple[list[SlopEntry], int]:
         lines = _read_lines(path, filepath)
         if lines is None:
             continue
-        for kind, rule in _RULES:
-            for partial in rule(lines, prefix):
-                entries.append({"file": filepath, "kind": kind, **partial})
+        ext = filepath.rsplit(".", 1)[-1].lower()
+        partials = [
+            (kind, partial) for kind, rule in _RULES for partial in rule(lines, prefix)
+        ] + [
+            (kind, partial)
+            for kind, rule in _EXT_RULES
+            for partial in rule(lines, prefix, ext)
+        ]
+        for kind, partial in partials:
+            entries.append({"file": filepath, "kind": kind, **partial})
     entries.sort(key=lambda e: (e["file"], e["line"]))
     return entries, len(files)
 

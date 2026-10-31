@@ -110,3 +110,52 @@ def test_marketing_prose_in_js_block_comment(tmp_path):
     )
     entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
     assert [e["kind"] for e in entries] == ["marketing_prose"]
+
+
+def test_log_and_rethrow_python(tmp_path):
+    (tmp_path / "m.py").write_text(
+        "import logging\n"
+        "log = logging.getLogger()\n"
+        "def f():\n"
+        "    try:\n"
+        "        g()\n"
+        "    except ValueError as exc:\n"
+        "        log.error('boom %s', exc)\n"
+        "        raise\n"
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert [(e["kind"], e["line"]) for e in entries] == [("log_and_rethrow", 6)]
+
+
+def test_log_and_rethrow_requires_bare_reraise(tmp_path):
+    (tmp_path / "m.py").write_text(
+        "def f():\n"
+        "    try:\n"
+        "        g()\n"
+        "    except ValueError as exc:\n"
+        "        log.error('boom')\n"
+        "        raise RuntimeError('wrapped') from exc\n"
+        "def h():\n"
+        "    try:\n"
+        "        g()\n"
+        "    except ValueError:\n"
+        "        log.error('boom')\n"
+        "        cleanup()\n"
+        "        raise\n"
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert entries == []
+
+
+def test_log_and_rethrow_typescript(tmp_path):
+    (tmp_path / "m.ts").write_text(
+        "try {\n  await g();\n} catch (err) {\n  console.error('boom', err);\n  throw err;\n}\n"
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert [(e["kind"], e["line"]) for e in entries] == [("log_and_rethrow", 3)]
+
+
+def test_log_and_rethrow_python_syntax_error_is_skipped(tmp_path):
+    (tmp_path / "m.py").write_text("def f(:\n    pass\n")
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert entries == []
