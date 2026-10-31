@@ -14,6 +14,7 @@ from desloppify.app.cli_support.parser_groups import (
     _add_detect_parser,
     _add_directives_parser,
     _add_dev_parser,
+    _add_instructions_parser,
     _add_exclude_parser,
     _add_autofix_parser,
     _add_langs_parser,
@@ -57,6 +58,7 @@ configure:
   zone       Show/set zone classifications
   config     Project configuration
   langs      List language plugins
+  instructions  Extract/import/show CODEBASE_INSTRUCTIONS.md
   dev        Developer utilities
   setup         Install bundled global AI skill files
   update-skill  Install/update agent skill document
@@ -72,6 +74,8 @@ examples:
   desloppify plan resolve "unused::src/foo.tsx::React" \\
     --note "removed import" --attest "I have actually ..."
   desloppify review --run-batches --parallel --scan-after-import
+  desloppify instructions extract        # evidence packet for CODEBASE_INSTRUCTIONS.md
+  desloppify instructions import CODEBASE_INSTRUCTIONS.md
 """
 
 
@@ -146,6 +150,7 @@ def create_parser(*, langs: list[str], detector_names: list[str]) -> argparse.Ar
     _add_zone_parser(sub)
     _add_config_parser(sub)
     _add_directives_parser(sub)
+    _add_instructions_parser(sub)
     _add_langs_parser(sub)
     _add_dev_parser(sub)
     _add_setup_parser(sub)

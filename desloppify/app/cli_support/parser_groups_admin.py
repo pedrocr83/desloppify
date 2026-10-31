@@ -200,6 +200,26 @@ def _add_update_skill_parser(sub) -> None:
     )
 
 
+def _add_instructions_parser(sub) -> None:
+    p = sub.add_parser(
+        "instructions",
+        help="Extract project conventions into CODEBASE_INSTRUCTIONS.md, import or show it",
+        description=(
+            "extract gathers evidence (manifests, tooling, naming, comments, git history) into "
+            "a packet the agent turns into CODEBASE_INSTRUCTIONS.md; import validates and records "
+            "that file; show prints it."
+        ),
+    )
+    isub = p.add_subparsers(dest="instructions_command")
+    p_extract = isub.add_parser("extract", help="Write the evidence packet (default)")
+    p_extract.add_argument("--path", type=str, default=None, help="Directory to analyse (default: project root)")
+    p_extract.add_argument("--out", type=str, default=None, help="Packet path (default: .desloppify/instructions_packet.json)")
+    p_import = isub.add_parser("import", help="Validate and record a written CODEBASE_INSTRUCTIONS.md")
+    p_import.add_argument("file", nargs="?", default="CODEBASE_INSTRUCTIONS.md", help="File to import")
+    p_import.add_argument("--allow-partial", action="store_true", help="Record the file even if validation reports problems")
+    isub.add_parser("show", help="Print the recorded instructions with rule ids")
+
+
 def _add_setup_parser(sub) -> None:
     p = sub.add_parser(
         "setup",

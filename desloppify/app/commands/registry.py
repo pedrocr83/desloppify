@@ -18,6 +18,7 @@ def _build_handlers() -> dict[str, CommandHandler]:
     from desloppify.app.commands.directives import cmd_directives
     from desloppify.app.commands.dev import cmd_dev
     from desloppify.app.commands.exclude import cmd_exclude
+    from desloppify.app.commands.instructions import cmd_instructions
     from desloppify.app.commands.langs import cmd_langs
     from desloppify.app.commands.move import cmd_move
     from desloppify.app.commands.next import cmd_next
@@ -51,6 +52,7 @@ def _build_handlers() -> dict[str, CommandHandler]:
         "review": cmd_review,
         "config": cmd_config,
         "directives": cmd_directives,
+        "instructions": cmd_instructions,
         "dev": cmd_dev,
         "langs": cmd_langs,
         "update-skill": cmd_update_skill,
