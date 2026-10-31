@@ -27,6 +27,8 @@ DISPLAY_NAMES: dict[str, str] = {
     "type_safety": "Type safety",
     "contract_coherence": "Contracts",
     "comment_quality": "Comment quality",
+    # Conditional: scored only while CODEBASE_INSTRUCTIONS.md is imported.
+    "instruction_adherence": "Rule adherence",
 }
 
 _SUBJECTIVE_WEIGHTS_BY_DISPLAY: dict[str, float] = {
@@ -41,6 +43,7 @@ _SUBJECTIVE_WEIGHTS_BY_DISPLAY: dict[str, float] = {
     "error consistency": 3.0,
     "naming quality": 2.0,
     "comment quality": 2.0,
+    "rule adherence": 8.0,
     "ai generated debt": 1.0,
     "design coherence": 10.0,
 }

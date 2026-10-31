@@ -25,6 +25,7 @@ SUBJECTIVE_SCORECARD_ORDER_DEFAULT: tuple[str, ...] = (
     "AI generated debt",
     "Cross-module arch",
     "Convention drift",
+    "Rule adherence",
     "Dep health",
     "Test strategy",
     "Structure nav",

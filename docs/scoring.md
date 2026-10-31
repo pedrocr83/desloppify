@@ -57,6 +57,7 @@ The subjective dimensions and their weights within the subjective pool:
 | Error consistency | 3.0 |
 | Naming quality | 2.0 |
 | Comment quality | 2.0 |
+| Rule adherence | 8.0 (only while CODEBASE_INSTRUCTIONS.md is imported) |
 | AI generated debt | 1.0 |
 
 Elegance, contracts, and type safety dominate because they reflect architectural quality and correctness. Naming quality, comment quality and AI-generated debt are low-weight nudges for polish.

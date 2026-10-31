@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- `instruction_adherence`: display "Instruction adherence", weight 8.0, never in `default_dimensions`, never in `resettable_default_dimensions` (so no placeholder nag when inactive). Active iff `instructions_file_matches(state, project_root)`.
+- `instruction_adherence`: display "Rule adherence", weight 8.0, never in `default_dimensions`, never in `resettable_default_dimensions` (so no placeholder nag when inactive). Active iff `instructions_file_matches(state, project_root)`.
 - Finding identifier contract: `CI-NNN::<slug>`; `CI-NNN::rule-unclear` marks a rule the reviewer could not apply. Import skips findings for this dimension whose prefix is not in `state.instructions.rule_ids`, with the reason in the skipped list.
 - `conform` writes nothing. Rule status: `unclear` if an open `rule-unclear` finding exists; else `violated` if any other open finding; else `clean` when the dimension has a non-placeholder assessment; else `unassessed`.
 - Gates per commit: pytest with exit code checked, ruff CI selection, mypy, import-linter. Bump `SKILL_VERSION` 9 to 10 with the SKILL.md change.
@@ -28,7 +28,7 @@
 ---
 
 ### Task 1: Prompt, metadata and activation helper
-**Files:** modify `desloppify/languages/_framework/review_data/dimensions.json` (new `instruction_adherence` prompt with `meta`), `desloppify/base/subjective_dimension_catalog.py` and `desloppify/base/subjective_dimensions_constants.py` (display name + weight 8.0; not in reset sets), `desloppify/engine/_scoring/policy/core.py` (`"instruction adherence": 8.0`), `desloppify/engine/planning/scorecard_policy.py` (order entry after "Convention drift"), `docs/scoring.md` (row + one sentence that it only counts when CODEBASE_INSTRUCTIONS.md is imported); create `desloppify/intelligence/review/dimensions/activation.py`; test `desloppify/tests/review/test_dimension_activation.py`.
+**Files:** modify `desloppify/languages/_framework/review_data/dimensions.json` (new `instruction_adherence` prompt with `meta`), `desloppify/base/subjective_dimension_catalog.py` and `desloppify/base/subjective_dimensions_constants.py` (display name + weight 8.0; not in reset sets), `desloppify/engine/_scoring/policy/core.py` (`"rule adherence": 8.0`), `desloppify/engine/planning/scorecard_policy.py` (order entry after "Convention drift"), `docs/scoring.md` (row + one sentence that it only counts when CODEBASE_INSTRUCTIONS.md is imported); create `desloppify/intelligence/review/dimensions/activation.py`; test `desloppify/tests/review/test_dimension_activation.py`.
 
 **Interfaces:**
 ```python
@@ -36,7 +36,7 @@ CONDITIONAL_DIMENSIONS: tuple[str, ...] = ("instruction_adherence",)
 def conditional_dimensions(state, *, root: Path | None = None) -> list[str]   # ["instruction_adherence"] when instructions_file_matches(state, root or get_project_root())
 def with_conditional_dimensions(dims: list[str], state, *, root: Path | None = None) -> list[str]  # dims + conditional, de-duplicated, order kept
 ```
-Prompt (exact `description`): "Adherence to the project's own written standard in CODEBASE_INSTRUCTIONS.md. Each CI-NNN rule is the rubric; score the code, not the file." `look_for`: "Code, comments, docstrings, commit messages or package choices that break a CI-NNN rule; cite the rule id in the finding identifier as `CI-NNN::short-slug`", "Rules that are vacuous, contradictory or untestable: report them as `CI-NNN::rule-unclear` at confidence low and do not lower the score for them", "Recent code drifting from a rule the older code follows". `skip`: "Anything no rule covers: this dimension never invents conventions", "Generated and vendored files", "Rules the user marked wontfix in earlier reviews". `meta`: `{"enabled_by_default": false, "display_name": "Instruction adherence", "weight": 8.0, "reset_on_scan": true}`.
+Prompt (exact `description`): "Adherence to the project's own written standard in CODEBASE_INSTRUCTIONS.md. Each CI-NNN rule is the rubric; score the code, not the file." `look_for`: "Code, comments, docstrings, commit messages or package choices that break a CI-NNN rule; cite the rule id in the finding identifier as `CI-NNN::short-slug`", "Rules that are vacuous, contradictory or untestable: report them as `CI-NNN::rule-unclear` at confidence low and do not lower the score for them", "Recent code drifting from a rule the older code follows". `skip`: "Anything no rule covers: this dimension never invents conventions", "Generated and vendored files", "Rules the user marked wontfix in earlier reviews". `meta`: `{"enabled_by_default": false, "display_name": "Rule adherence", "weight": 8.0, "reset_on_scan": true}`.
 
 - [ ] tests: `test_instruction_adherence_prompt_registered_not_default`, `test_conditional_dimensions_active_when_record_matches`, `test_conditional_dimensions_inactive_when_file_missing`, `test_with_conditional_dimensions_dedups`, `test_weight_and_display`. Implement. Commit `feat(review): instruction_adherence dimension and activation helper`.
 
@@ -60,5 +60,5 @@ def build_conform_report(state, root: Path) -> dict   # {"dimension": "instructi
 def render_conform_report(report: dict, *, rule: str | None, status: str) -> str
 def cmd_conform(args) -> None   # CommandError when no instructions record
 ```
-Findings come from `state["work_items"]` where `detector == "review"` and `detail.dimension == "instruction_adherence"`; rule id = identifier prefix; statuses: open ∈ {open, deferred, triaged_out}; resolved ∈ {fixed, auto_resolved, false_positive}; wontfix. Score from `state["dimension_scores"]["Instruction adherence"]` (`score`, `strict`) and `state["subjective_assessments"]["instruction_adherence"]` (`assessed_at`, `placeholder`). Next action text: unassessed or stale -> "desloppify review --prepare"; open violations -> "desloppify next"; else "clean".
+Findings come from `state["work_items"]` where `detector == "review"` and `detail.dimension == "instruction_adherence"`; rule id = identifier prefix; statuses: open ∈ {open, deferred, triaged_out}; resolved ∈ {fixed, auto_resolved, false_positive}; wontfix. Score from `state["dimension_scores"]["Rule adherence"]` (`score`, `strict`) and `state["subjective_assessments"]["instruction_adherence"]` (`assessed_at`, `placeholder`). Next action text: unassessed or stale -> "desloppify review --prepare"; open violations -> "desloppify next"; else "clean".
 - [ ] tests: `test_parser_and_registry_wired`, `test_conform_requires_record`, `test_conform_statuses` (clean/violated/unclear/unassessed rows from seeded state), `test_conform_json_shape`, `test_conform_rule_filter`. Implement. Sync docs. Full gates. Commit `feat(conform): per-rule adherence report`.

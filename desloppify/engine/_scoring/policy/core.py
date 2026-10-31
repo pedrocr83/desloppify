@@ -186,6 +186,7 @@ SUBJECTIVE_DIMENSION_WEIGHTS: dict[str, float] = {
     "error consistency": 3.0,
     "naming quality": 2.0,
     "comment quality": 2.0,
+    "rule adherence": 8.0,
     "ai generated debt": 1.0,
     "design coherence": 10.0,
 }
