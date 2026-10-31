@@ -19,6 +19,7 @@ _download = _cmd._download
 _build_section = _cmd._build_section
 _ensure_frontmatter_first = _cmd._ensure_frontmatter_first
 _replace_section = _cmd._replace_section
+_replace_deslop_section = _cmd._replace_deslop_section
 
 find_installed_skill = _cmd.find_installed_skill
 get_project_root = _cmd.get_project_root
@@ -72,6 +73,7 @@ __all__ = [
     "_build_section",
     "_download",
     "_ensure_frontmatter_first",
+    "_replace_deslop_section",
     "_replace_section",
     "cmd_update_skill",
     "colorize",

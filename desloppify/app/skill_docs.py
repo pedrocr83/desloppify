@@ -91,6 +91,21 @@ GLOBAL_TARGETS: dict[str, tuple[str, str, str, bool]] = {
 }
 
 
+def deslop_target_for(target_rel: str, dedicated: bool) -> str:
+    """Return where the deslop skill lives next to a main skill target.
+
+    Dedicated skill files get a sibling ``desloppify-deslop`` file; shared
+    files (AGENTS.md, copilot-instructions.md) hold both as marked sections.
+    """
+    if not dedicated:
+        return target_rel
+    if target_rel.endswith("/desloppify/SKILL.md"):
+        return target_rel[: -len("/desloppify/SKILL.md")] + "/desloppify-deslop/SKILL.md"
+    if target_rel.endswith("/desloppify.md"):
+        return target_rel[: -len("/desloppify.md")] + "/desloppify-deslop.md"
+    raise ValueError(f"Cannot derive a deslop target from {target_rel!r}")
+
+
 @dataclass
 class SkillInstall:
     """Detected skill document installation."""
@@ -194,7 +209,12 @@ __all__ = [
     "SKILL_SEARCH_PATHS",
     "SKILL_TARGETS",
     "GLOBAL_TARGETS",
+    "DESLOP_VERSION",
+    "DESLOP_VERSION_RE",
+    "DESLOP_BEGIN",
+    "DESLOP_END",
     "SkillInstall",
+    "deslop_target_for",
     "find_installed_skill",
     "find_stale_global_installs",
     "find_any_global_install",

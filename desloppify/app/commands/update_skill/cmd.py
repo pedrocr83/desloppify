@@ -3,17 +3,22 @@
 from __future__ import annotations
 
 import argparse
+import re
 import ssl
 import urllib.error
 import urllib.request
 
 from desloppify.app.skill_docs import (
+    DESLOP_BEGIN,
+    DESLOP_END,
+    DESLOP_VERSION_RE,
     SKILL_BEGIN,
     SKILL_END,
     SKILL_TARGETS,
     SKILL_VERSION,
     SKILL_VERSION_RE,
     SkillInstall,
+    deslop_target_for,
     find_installed_skill,
 )
 from desloppify.base.exception_sets import CommandError
@@ -103,35 +108,88 @@ def _ensure_frontmatter_first(content: str) -> str:
     return "\n".join(reordered)
 
 
-def _replace_section(file_content: str, new_section: str) -> str:
-    """Replace the desloppify section in a shared file, preserving surrounding content.
+def _replace_marked_section(
+    file_content: str,
+    new_section: str,
+    *,
+    begin_marker: str,
+    end_marker: str,
+    version_re: re.Pattern[str],
+) -> str:
+    """Replace one marked section in a shared file, preserving surrounding content.
 
-    Uses first ``<!-- desloppify-begin -->`` and last ``<!-- desloppify-end -->``
-    so the overlay (which also has an end marker) is captured correctly.
+    Uses the first begin marker and the last end marker so an overlay (which
+    also carries an end marker) is captured correctly.
 
-    Raises ``CommandError`` if the file already contains desloppify content
-    (detected by the version marker) but is missing the begin/end markers —
+    Raises ``CommandError`` if the file already contains that section's content
+    (detected by its version marker) but is missing the begin/end markers —
     this prevents silently appending duplicate content.
     """
-    begin = file_content.find(SKILL_BEGIN)
-    end = file_content.rfind(SKILL_END)
+    begin = file_content.find(begin_marker)
+    end = file_content.rfind(end_marker)
     if begin == -1 or end == -1:
-        # Check if the file already has desloppify content without markers.
-        if SKILL_VERSION_RE.search(file_content):
+        if version_re.search(file_content):
             raise CommandError(
                 "This file already contains desloppify skill content but is "
-                "missing <!-- desloppify-begin --> / <!-- desloppify-end --> "
-                "markers. Please add these markers around the existing "
-                "desloppify section, or remove the old content first."
+                f"missing {begin_marker} / {end_marker} markers. Please add "
+                "these markers around the existing section, or remove the old "
+                "content first."
             )
         # No section markers and no existing content — append (first install).
         return file_content.rstrip() + "\n\n" + new_section
 
     before = file_content[:begin]
-    after = file_content[end + len(SKILL_END):]
+    after = file_content[end + len(end_marker):]
     before = before.rstrip() + "\n\n" if before.strip() else ""
     after = "\n" + after.lstrip("\n") if after.strip() else "\n"
     return before + new_section + after
+
+
+def _replace_section(file_content: str, new_section: str) -> str:
+    """Replace the main desloppify section in a shared file."""
+    return _replace_marked_section(
+        file_content,
+        new_section,
+        begin_marker=SKILL_BEGIN,
+        end_marker=SKILL_END,
+        version_re=SKILL_VERSION_RE,
+    )
+
+
+def _replace_deslop_section(file_content: str, new_section: str) -> str:
+    """Replace the deslop section in a shared file."""
+    return _replace_marked_section(
+        file_content,
+        new_section,
+        begin_marker=DESLOP_BEGIN,
+        end_marker=DESLOP_END,
+        version_re=DESLOP_VERSION_RE,
+    )
+
+
+def _install_deslop_doc(
+    interface: str,
+    deslop_content: str,
+    *,
+    get_project_root_fn,
+    safe_write_text_fn,
+    colorize_fn,
+) -> None:
+    """Write the deslop skill next to the main skill for *interface*."""
+    target_rel, _overlay_name, dedicated = SKILL_TARGETS[interface]
+    deslop_rel = deslop_target_for(target_rel, dedicated)
+    target_path = get_project_root_fn() / deslop_rel
+    section = deslop_content.rstrip() + "\n"
+    if interface in _FRONTMATTER_FIRST_INTERFACES:
+        section = _ensure_frontmatter_first(section)
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    if dedicated or not target_path.is_file():
+        result = section
+    else:
+        existing = target_path.read_text(encoding="utf-8", errors="replace")
+        result = _replace_deslop_section(existing, section)
+    safe_write_text_fn(target_path, result)
+    print(colorize_fn(f"Updated {deslop_rel} (desloppify-deslop skill)", "green"))
 
 
 def resolve_interface(
@@ -206,6 +264,22 @@ def _update_installed_skill_with_deps(
             f"Updated {target_rel} (v{version}, tool expects v{SKILL_VERSION})",
             "green",
         )
+    )
+
+    try:
+        deslop_content = download_fn("DESLOP.md")
+    except (urllib.error.URLError, OSError) as exc:
+        print(colorize_fn(f"Deslop skill download failed: {exc}", "red"))
+        return True
+    if not DESLOP_VERSION_RE.search(deslop_content):
+        print(colorize_fn("Downloaded content doesn't look like the deslop skill document.", "red"))
+        return True
+    _install_deslop_doc(
+        interface,
+        deslop_content,
+        get_project_root_fn=get_project_root_fn,
+        safe_write_text_fn=safe_write_text_fn,
+        colorize_fn=colorize_fn,
     )
     return True
 

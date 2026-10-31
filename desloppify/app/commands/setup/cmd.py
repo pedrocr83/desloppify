@@ -9,9 +9,17 @@ from pathlib import Path
 from desloppify.app.commands.update_skill import (
     _build_section,
     _ensure_frontmatter_first,
+    _replace_deslop_section,
     _replace_section,
 )
-from desloppify.app.skill_docs import GLOBAL_TARGETS, SKILL_VERSION, SKILL_VERSION_RE
+from desloppify.app.skill_docs import (
+    DESLOP_VERSION,
+    DESLOP_VERSION_RE,
+    GLOBAL_TARGETS,
+    SKILL_VERSION,
+    SKILL_VERSION_RE,
+    deslop_target_for,
+)
 from desloppify.base.discovery.file_paths import safe_write_text
 from desloppify.base.exception_sets import CommandError
 from desloppify.base.output.terminal import colorize
@@ -68,6 +76,32 @@ def _warn_skip(interface: str, tool_dir: str) -> None:
     )
 
 
+def _installed_deslop_version(path: Path) -> int | None:
+    """Return the installed deslop skill version, or None if missing/unparseable."""
+    if not path.is_file():
+        return None
+    match = DESLOP_VERSION_RE.search(path.read_text(encoding="utf-8", errors="replace"))
+    return int(match.group(1)) if match else None
+
+
+def _install_global_deslop(interface: str) -> None:
+    """Install the bundled deslop skill next to the main global skill."""
+    rel_path, _overlay_name, _tool_dir, dedicated = GLOBAL_TARGETS[interface]
+    target_path = Path.home() / deslop_target_for(rel_path, dedicated)
+    installed = _installed_deslop_version(target_path)
+    if installed is not None and installed >= DESLOP_VERSION:
+        return
+    section = _resource_text("DESLOP.md")
+    if interface in {"amp", "codex", "qwen"}:
+        section = _ensure_frontmatter_first(section)
+    if dedicated or not target_path.is_file():
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write_text(target_path, section)
+        return
+    existing = target_path.read_text(encoding="utf-8", errors="replace")
+    safe_write_text(target_path, _replace_deslop_section(existing, section))
+
+
 def _install_global(interface: str) -> tuple[str, Path]:
     """Install one global skill file. Returns (action, path)."""
     rel_path, _overlay_name, tool_dir, dedicated = GLOBAL_TARGETS[interface]
@@ -81,6 +115,7 @@ def _install_global(interface: str) -> tuple[str, Path]:
     target_path = home / rel_path
     old_version = _installed_version(target_path)
     if old_version is not None and old_version >= SKILL_VERSION:
+        _install_global_deslop(interface)
         return "skipped", target_path
 
     section = _build_bundled_section(interface)
@@ -93,6 +128,7 @@ def _install_global(interface: str) -> tuple[str, Path]:
         target_path.parent.mkdir(parents=True, exist_ok=True)
         safe_write_text(target_path, section)
 
+    _install_global_deslop(interface)
     return ("updated" if old_version is not None else "installed"), target_path
 
 

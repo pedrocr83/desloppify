@@ -855,6 +855,7 @@ class TestUpdateInstalledSkill:
         )
         mock_download.side_effect = lambda f: {
             "SKILL.md": skill_content,
+            "DESLOP.md": "<!-- desloppify-deslop-begin -->\n<!-- desloppify-deslop-version: 1 -->\ndeslop\n<!-- desloppify-deslop-end -->\n",
             "CLAUDE.md": "overlay",
         }[f]
 
@@ -888,6 +889,7 @@ class TestUpdateInstalledSkill:
         )
         mock_download.side_effect = lambda f: {
             "SKILL.md": skill_content,
+            "DESLOP.md": "<!-- desloppify-deslop-begin -->\n<!-- desloppify-deslop-version: 1 -->\ndeslop\n<!-- desloppify-deslop-end -->\n",
             "WINDSURF.md": "windsurf overlay",
         }[f]
 

@@ -221,3 +221,22 @@ def test_setup_parser_accepts_rovodev_choice() -> None:
     parser = create_parser()
     args = parser.parse_args(["setup", "--interface", "rovodev"])
     assert args.interface == "rovodev"
+
+
+def test_setup_installs_global_deslop(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    (tmp_path / ".claude").mkdir()
+    (tmp_path / ".codex").mkdir()
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+
+    setup_cmd_mod.cmd_setup(_setup_args())
+
+    claude_deslop = tmp_path / ".claude" / "skills" / "desloppify-deslop" / "SKILL.md"
+    assert claude_deslop.read_text(encoding="utf-8").startswith("<!-- desloppify-deslop-begin -->")
+    codex_shared = (tmp_path / ".codex" / "AGENTS.md").read_text(encoding="utf-8")
+    assert codex_shared.count("<!-- desloppify-deslop-begin -->") == 1
+    assert codex_shared.count("<!-- desloppify-begin -->") == 1
+
+    # A second run with the main skill current still keeps exactly one deslop section.
+    setup_cmd_mod.cmd_setup(_setup_args())
+    codex_shared = (tmp_path / ".codex" / "AGENTS.md").read_text(encoding="utf-8")
+    assert codex_shared.count("<!-- desloppify-deslop-begin -->") == 1
