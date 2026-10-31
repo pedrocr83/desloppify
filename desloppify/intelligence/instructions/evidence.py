@@ -58,8 +58,11 @@ _TEST_FILE_RES = (
     ("*_test.go", re.compile(r"_test\.go$")),
     ("*Tests.cs", re.compile(r"Tests?\.cs$")),
 )
+# Anchored to a class statement so prose like "class is an ImportError subclass"
+# in a comment does not count.
 _CUSTOM_EXCEPTION_RE = re.compile(
-    r"class\s+(\w+)\s*(?:\(|extends\s+|:\s*)[^\n]*?(?:Exception|Error)\b"
+    r"^\s*class\s+(\w+)\s*(?:\(([^)\n]*)\)|extends\s+([\w.]+))",
+    re.MULTILINE,
 )
 
 
@@ -330,7 +333,11 @@ def gather_error_style(file_contents: dict[str, str]) -> dict:
         strategy = classify_error_strategy(content)
         if strategy:
             strategies[strategy] += 1
-        for name in _CUSTOM_EXCEPTION_RE.findall(content):
+        for match in _CUSTOM_EXCEPTION_RE.finditer(content):
+            bases = match.group(2) or match.group(3) or ""
+            if not re.search(r"Exception|Error", bases):
+                continue
+            name = match.group(1)
             if name not in custom:
                 custom.append(name)
     return {"strategies": dict(strategies), "custom_exceptions": custom[:30]}

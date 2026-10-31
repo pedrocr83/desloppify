@@ -560,7 +560,7 @@ def render_instructions_focus(dim_set: set[str]) -> str:
         "  Every instruction_adherence finding uses the identifier `CI-NNN::short-slug` where "
         "CI-NNN is the rule it breaks. A rule you cannot apply (vacuous, contradictory, "
         "untestable) gets one finding `CI-NNN::rule-unclear` at confidence low; such rules do "
-        "not lower the score."
+        "not lower the score.\n"
     )
 
 

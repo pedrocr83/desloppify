@@ -90,9 +90,11 @@ def test_error_style_counts_strategies():
     contents = {
         "a.py": "class DemoError(Exception):\n    pass\ndef f():\n    raise DemoError()\n",
         "b.py": "def g():\n    return None\n",
+        "c.py": "# rpy2's own class is an ImportError subclass too (LibraryError).\nclass Plain:\n    pass\n",
+        "d.ts": "export class HttpError extends Error {}\n",
     }
     out = evidence.gather_error_style(contents)
-    assert out["custom_exceptions"] == ["DemoError"]
+    assert out["custom_exceptions"] == ["DemoError", "HttpError"]
     assert sum(out["strategies"].values()) >= 1
 
 
