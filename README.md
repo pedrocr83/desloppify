@@ -24,6 +24,7 @@ Run ALL of the following (requires Python 3.11+):
 
 pip install --upgrade "desloppify[full]"
 desloppify update-skill claude    # installs the full workflow guide — pick yours: claude, cursor, codex, copilot, droid, windsurf, gemini, rovodev
+                                  # also installs the desloppify-deslop cleanup skill next to it
 
 Add .desloppify/ to your .gitignore — it contains local state that shouldn't be committed.
 
