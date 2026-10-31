@@ -50,6 +50,17 @@ DETECTORS: dict[str, DetectorMeta] = {
         marks_dims_stale=True,
         subjective_dimensions=("design_coherence", "error_consistency", "logic_clarity"),
     ),
+    "slop": DetectorMeta(
+        "slop",
+        "slop",
+        "Code quality",
+        "manual_fix",
+        "remove narrating comments, commented-out code, marketing prose and "
+        "log-and-rethrow handlers; follow the desloppify-deslop skill: run the "
+        "checks first, read for intent, cut, verify, report",
+        tier=3,
+        subjective_dimensions=("ai_generated_debt", "comment_quality"),
+    ),
     # ── Reorganize (move tool) ────────────────────────────
     "orphaned": DetectorMeta(
         "orphaned",

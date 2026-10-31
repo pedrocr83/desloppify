@@ -50,6 +50,7 @@ _FILE_BASED_POLICY_DETECTORS = frozenset(
         "review",
         "nextjs",
         "next_lint",
+        "slop",
     }
 )
 _LOC_WEIGHT_POLICY_DETECTORS = frozenset({"test_coverage"})

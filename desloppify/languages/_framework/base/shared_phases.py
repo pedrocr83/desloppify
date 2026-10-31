@@ -25,6 +25,7 @@ from .shared_phases_review import (
     phase_security as _phase_security_review,
     phase_private_imports,
     phase_signature,
+    phase_slop,
     phase_subjective_review,
     phase_test_coverage,
 )
@@ -95,6 +96,7 @@ __all__ = [
     "phase_private_imports",
     "phase_security",
     "phase_signature",
+    "phase_slop",
     "phase_subjective_review",
     "phase_test_coverage",
     "run_coupling_phase",

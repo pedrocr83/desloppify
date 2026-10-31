@@ -11,6 +11,52 @@ from desloppify.engine._state.filtering import make_issue
 from desloppify.state_io import Issue
 
 
+SLOP_KIND_LABELS: dict[str, str] = {
+    "narrating_comment": "narrating comment",
+    "commented_out_code": "commented-out code block",
+    "generic_todo": "TODO without owner or ticket",
+    "marketing_prose": "marketing prose in comments/docstrings",
+    "log_and_rethrow": "log-and-rethrow handler",
+}
+SLOP_KIND_CONFIDENCE: dict[str, str] = {
+    "narrating_comment": "medium",
+    "commented_out_code": "medium",
+    "generic_todo": "low",
+    "marketing_prose": "high",
+    "log_and_rethrow": "high",
+}
+
+
+def make_slop_issues(entries: list[dict]) -> list[Issue]:
+    """Group slop entries into one issue per (file, kind)."""
+    grouped: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for entry in entries:
+        grouped[(entry["file"], entry["kind"])].append(entry)
+    results = []
+    for (file, kind), group in grouped.items():
+        detail: dict = {
+            "kind": kind,
+            "count": len(group),
+            "lines": [e["line"] for e in group],
+            "snippets": [e["snippet"] for e in group[:5]],
+        }
+        hits = group[0].get("hits")
+        if hits:
+            detail["hits"] = hits
+        results.append(
+            make_issue(
+                "slop",
+                file,
+                kind,
+                tier=3,
+                confidence=SLOP_KIND_CONFIDENCE.get(kind, "medium"),
+                summary=f"{len(group)}x {SLOP_KIND_LABELS.get(kind, kind)}",
+                detail=detail,
+            )
+        )
+    return results
+
+
 def make_unused_issues(entries: list[dict], stderr_fn) -> list[Issue]:
     """Transform raw unused-detector entries into normalized issues.
 

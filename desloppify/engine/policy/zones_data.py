@@ -2,6 +2,7 @@
 
 SKIP_ALL_DETECTORS = frozenset(
     {
+        "slop",
         "unused",
         "logs",
         "exports",
@@ -27,6 +28,7 @@ SKIP_ALL_DETECTORS = frozenset(
 )
 
 TEST_SKIP_DETECTORS = {
+    "slop",
     "boilerplate_duplication",
     "dupes",
     "single_use",
@@ -40,6 +42,7 @@ TEST_SKIP_DETECTORS = {
 }
 
 CONFIG_SKIP_DETECTORS = {
+    "slop",
     "boilerplate_duplication",
     "smells",
     "structural",

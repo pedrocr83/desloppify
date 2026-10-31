@@ -20,16 +20,17 @@ from desloppify.engine.detectors.jscpd_adapter import detect_with_jscpd
 from desloppify.engine.detectors.security.detector import (
     detect_security_issues as _detect_security_issues_default,
 )
+from desloppify.engine.detectors.slop import detect_slop
 from desloppify.engine.detectors.test_coverage.detector import detect_test_coverage
 from desloppify.engine._state.filtering import make_issue
-from desloppify.engine.policy.zones import EXCLUDED_ZONES, filter_entries
+from desloppify.engine.policy.zones import EXCLUDED_ZONES, adjust_potential, filter_entries
 from desloppify.languages._framework.base.types import (
     DetectorCoverageStatus,
     DetectorEntry,
     LangRuntimeContract,
     LangSecurityResult,
 )
-from desloppify.languages._framework.issue_factories import make_dupe_issues
+from desloppify.languages._framework.issue_factories import make_dupe_issues, make_slop_issues
 from desloppify.state_io import Issue
 
 from .shared_phases_helpers import (
@@ -724,3 +725,13 @@ __all__ = [
     "phase_subjective_review",
     "phase_test_coverage",
 ]
+
+
+def phase_slop(path: Path, lang: LangRuntimeContract) -> tuple[list[Issue], dict[str, int]]:
+    """Detect narrating comments, commented-out code, marketing prose and log-and-rethrow."""
+    entries, total_files = detect_slop(path, lang.file_finder)
+    entries = filter_entries(lang.zone_map, entries, "slop")
+    results = make_slop_issues(entries)
+    if results:
+        log(f"         slop: {len(results)} file/kind groups")
+    return results, {"slop": adjust_potential(lang.zone_map, total_files)}

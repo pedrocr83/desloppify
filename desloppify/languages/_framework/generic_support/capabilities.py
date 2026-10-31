@@ -15,6 +15,7 @@ from desloppify.languages._framework.base.types import LangConfig
 SHARED_PHASE_LABELS = frozenset(
     {
         "Security",
+        "Slop",
         "Subjective review",
         "Boilerplate duplication",
         "Duplicates",
@@ -87,6 +88,7 @@ def capability_report(cfg: LangConfig) -> tuple[list[str], list[str]] | None:
     check(cfg.extract_functions is not noop_extract_functions, "function extraction")
     check("Security" in phase_labels, "security scan")
     check("Boilerplate duplication" in phase_labels, "boilerplate detection")
+    check("Slop" in phase_labels, "slop detection")
     check("Subjective review" in phase_labels, "design review")
 
     return present, missing

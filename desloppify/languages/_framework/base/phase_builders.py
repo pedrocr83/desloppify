@@ -10,6 +10,7 @@ from .shared_phases import (
     phase_dupes,
     phase_security,
     phase_signature,
+    phase_slop,
     phase_subjective_review,
     phase_test_coverage,
 )
@@ -63,6 +64,10 @@ SHARED_PHASE_FACTORIES = {
         "Boilerplate duplication", phase_boilerplate_duplication, slow=True,
         exclusive_detector="desloppify.engine.detectors.jscpd_adapter",
     ),
+    "slop": _make_detector_phase_factory(
+        "Slop", phase_slop,
+        exclusive_detector="desloppify.engine.detectors.slop",
+    ),
 }
 
 EXCLUSIVE_DETECTOR_MODULES: frozenset[str] = frozenset(
@@ -78,14 +83,15 @@ detector_phase_signature = SHARED_PHASE_FACTORIES["signature"]
 detector_phase_subjective_review = SHARED_PHASE_FACTORIES["subjective_review"]
 detector_phase_duplicates = SHARED_PHASE_FACTORIES["duplicates"]
 detector_phase_boilerplate_duplication = SHARED_PHASE_FACTORIES["boilerplate_duplication"]
+detector_phase_slop = SHARED_PHASE_FACTORIES["slop"]
 
 
 def shared_subjective_duplicates_tail(
     *,
     pre_duplicates: list[DetectorPhase] | None = None,
 ) -> list[DetectorPhase]:
-    """Shared review tail: subjective review, optional custom phases, then duplicates."""
-    phases = [detector_phase_subjective_review()]
+    """Shared review tail: slop, subjective review, optional custom phases, then duplicates."""
+    phases = [detector_phase_slop(), detector_phase_subjective_review()]
     if pre_duplicates:
         phases.extend(pre_duplicates)
     phases.append(detector_phase_boilerplate_duplication())
@@ -98,6 +104,7 @@ __all__ = [
     "detector_phase_duplicates",
     "detector_phase_security",
     "detector_phase_signature",
+    "detector_phase_slop",
     "detector_phase_subjective_review",
     "detector_phase_test_coverage",
     "EXCLUSIVE_DETECTOR_MODULES",

@@ -26,7 +26,7 @@ Detectors are grouped into dimensions based on what they measure:
 | Dimension | Pool weight | Detectors |
 |-----------|-------------|-----------|
 | **File health** | 2.0 | structural |
-| **Code quality** | 1.0 | unused, logs, exports, smells, orphaned, flat_dirs, naming, single_use, coupling, facade, props, react, nextjs, next_lint, patterns, dict_keys, deprecated, stale_exclude, clippy_warning, cargo_error, rust_import_hygiene, rust_feature_hygiene, rust_api_convention, rust_error_boundary, rust_future_proofing, rust_async_locking, rust_drop_safety, rust_unsafe_api, global_mutable_config, private_imports, layer_violation, responsibility_cohesion |
+| **Code quality** | 1.0 | unused, logs, exports, smells, slop, orphaned, flat_dirs, naming, single_use, coupling, facade, props, react, nextjs, next_lint, patterns, dict_keys, deprecated, stale_exclude, clippy_warning, cargo_error, rust_import_hygiene, rust_feature_hygiene, rust_api_convention, rust_error_boundary, rust_future_proofing, rust_async_locking, rust_drop_safety, rust_unsafe_api, global_mutable_config, private_imports, layer_violation, responsibility_cohesion |
 | **Duplication** | 1.0 | dupes, boilerplate_duplication |
 | **Test health** | 1.0 | test_coverage, rustdoc_warning, rust_doctest, rust_thread_safety |
 | **Security** | 1.0 | cycles, security |
