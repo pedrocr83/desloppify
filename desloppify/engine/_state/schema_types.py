@@ -77,6 +77,7 @@ class StateModel(TypedDict, total=False):
     dimension_contexts: dict[str, DimensionContext]
     _plan_start_scores_for_reveal: dict[str, Any]
     scan_metadata: Required[ScanMetadataModel]
+    instructions: dict[str, Any]
 
 
 class ScanDiff(TypedDict):
