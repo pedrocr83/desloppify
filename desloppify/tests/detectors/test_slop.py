@@ -84,3 +84,29 @@ def test_generic_todo_flagged_but_owned_todo_kept(tmp_path):
     )
     entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
     assert [(e["kind"], e["line"]) for e in entries] == [("generic_todo", 1)]
+
+
+def test_marketing_prose_in_docstring_and_comment_one_entry(tmp_path):
+    (tmp_path / "m.py").write_text(
+        '"""A robust, blazing-fast file mover."""\n# leverages seamless IO\nx = 1\n'
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert len(entries) == 1
+    entry = entries[0]
+    assert entry["kind"] == "marketing_prose"
+    assert entry["line"] == 1
+    assert set(entry["hits"]) == {"robust", "blazing", "leverages", "seamless"}
+
+
+def test_marketing_prose_ignores_code_identifiers(tmp_path):
+    (tmp_path / "m.py").write_text("robust = leverage(powerful)\n")
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert entries == []
+
+
+def test_marketing_prose_in_js_block_comment(tmp_path):
+    (tmp_path / "m.ts").write_text(
+        "/**\n * Comprehensive, cutting-edge helper.\n */\nexport const x = 1;\n"
+    )
+    entries, _ = slop.detect_slop(tmp_path, _finder_for(tmp_path))
+    assert [e["kind"] for e in entries] == ["marketing_prose"]

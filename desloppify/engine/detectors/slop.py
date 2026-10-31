@@ -114,8 +114,8 @@ def _next_code_line(lines: list[str], start_idx: int, prefix: str) -> str | None
     return None
 
 
-def _narrating_comments(lines: list[str], prefix: str) -> list[tuple[int, str]]:
-    found: list[tuple[int, str]] = []
+def _narrating_comments(lines: list[str], prefix: str) -> list[dict]:
+    found: list[dict] = []
     for line_no, text in iter_comment_lines(lines, prefix):
         if not text or _is_directive(text) or _is_why_comment(text):
             continue
@@ -128,7 +128,7 @@ def _narrating_comments(lines: list[str], prefix: str) -> list[tuple[int, str]]:
         code_tokens = _tokens(code)
         named = comment_tokens - _NARRATION_VERBS
         if named and named <= code_tokens:
-            found.append((line_no, text))
+            found.append({"line": line_no, "snippet": text})
     return found
 
 
@@ -144,13 +144,13 @@ _TODO_OWNED_RE = re.compile(
 )
 
 
-def _commented_out_code(lines: list[str], prefix: str) -> list[tuple[int, str]]:
-    found: list[tuple[int, str]] = []
+def _commented_out_code(lines: list[str], prefix: str) -> list[dict]:
+    found: list[dict] = []
     run: list[tuple[int, str]] = []
 
     def flush() -> None:
         if len(run) >= 3:
-            found.append(run[0])
+            found.append({"line": run[0][0], "snippet": run[0][1]})
         run.clear()
 
     comment_lines = dict(iter_comment_lines(lines, prefix))
@@ -172,21 +172,71 @@ def _commented_out_code(lines: list[str], prefix: str) -> list[tuple[int, str]]:
     return found
 
 
-def _generic_todos(lines: list[str], prefix: str) -> list[tuple[int, str]]:
-    found: list[tuple[int, str]] = []
+def _generic_todos(lines: list[str], prefix: str) -> list[dict]:
+    found: list[dict] = []
     for line_no, text in iter_comment_lines(lines, prefix):
         if not _TODO_RE.search(text):
             continue
         if _TODO_OWNED_RE.search(text) or _TICKET_RE.search(text) or _URL_RE.search(text):
             continue
-        found.append((line_no, text))
+        found.append({"line": line_no, "snippet": text})
     return found
 
 
-_RULES: tuple[tuple[str, Callable[[list[str], str], list[tuple[int, str]]]], ...] = (
+MARKETING_TERMS: tuple[str, ...] = (
+    "robust", "seamless", "seamlessly", "powerful", "blazing", "blazingly",
+    "comprehensive", "cutting-edge", "leverage", "leverages", "empower", "empowers",
+    "fast-paced", "whether you're a beginner", "it's worth noting", "made with",
+)
+_MARKETING_RE = re.compile(
+    r"\b(?:" + "|".join(re.escape(term) for term in MARKETING_TERMS) + r")\b",
+    re.IGNORECASE,
+)
+_TRIPLE_QUOTE_RE = re.compile(r'"""|\'\'\'')
+
+
+def _prose_lines(lines: list[str], prefix: str) -> Iterator[tuple[int, str]]:
+    """Yield comment lines plus lines inside docstrings or block comments."""
+    in_docstring = False
+    in_block = False
+    for line_no, raw in enumerate(lines, start=1):
+        stripped = raw.strip()
+        if prefix == "#":
+            quotes = len(_TRIPLE_QUOTE_RE.findall(stripped))
+            if in_docstring or quotes:
+                yield line_no, stripped
+                if quotes % 2 == 1:
+                    in_docstring = not in_docstring
+                continue
+        elif prefix == "//":
+            if in_block or stripped.startswith("/*"):
+                yield line_no, stripped
+                in_block = "*/" not in stripped
+                continue
+        if stripped.startswith(prefix):
+            yield line_no, stripped[len(prefix):].strip()
+
+
+def _marketing_prose(lines: list[str], prefix: str) -> list[dict]:
+    hits: list[str] = []
+    first_line: int | None = None
+    for line_no, text in _prose_lines(lines, prefix):
+        for match in _MARKETING_RE.findall(text):
+            lowered = match.lower()
+            if lowered not in hits:
+                hits.append(lowered)
+            if first_line is None:
+                first_line = line_no
+    if first_line is None:
+        return []
+    return [{"line": first_line, "snippet": ", ".join(hits), "hits": hits}]
+
+
+_RULES: tuple[tuple[str, Callable[[list[str], str], list[dict]]], ...] = (
     ("narrating_comment", _narrating_comments),
     ("commented_out_code", _commented_out_code),
     ("generic_todo", _generic_todos),
+    ("marketing_prose", _marketing_prose),
 )
 
 
@@ -211,10 +261,8 @@ def detect_slop(path: Path, file_finder) -> tuple[list[SlopEntry], int]:
         if lines is None:
             continue
         for kind, rule in _RULES:
-            for line_no, snippet in rule(lines, prefix):
-                entries.append(
-                    {"file": filepath, "kind": kind, "line": line_no, "snippet": snippet}
-                )
+            for partial in rule(lines, prefix):
+                entries.append({"file": filepath, "kind": kind, **partial})
     entries.sort(key=lambda e: (e["file"], e["line"]))
     return entries, len(files)
 
