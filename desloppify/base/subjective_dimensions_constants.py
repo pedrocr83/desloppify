@@ -26,6 +26,7 @@ DISPLAY_NAMES: dict[str, str] = {
     "logic_clarity": "Logic clarity",
     "type_safety": "Type safety",
     "contract_coherence": "Contracts",
+    "comment_quality": "Comment quality",
 }
 
 LEGACY_DISPLAY_NAMES: dict[str, str] = DISPLAY_NAMES
@@ -41,6 +42,7 @@ LEGACY_SUBJECTIVE_WEIGHTS_BY_DISPLAY: dict[str, float] = {
     "structure nav": 5.0,
     "error consistency": 3.0,
     "naming quality": 2.0,
+    "comment quality": 2.0,
     "ai generated debt": 1.0,
     "design coherence": 10.0,
 }
@@ -52,6 +54,7 @@ LEGACY_RESET_ON_SCAN_DIMENSIONS: frozenset[str] = frozenset(
         "abstraction_fitness",
         "logic_clarity",
         "ai_generated_debt",
+        "comment_quality",
         "type_safety",
         "contract_coherence",
         "package_organization",

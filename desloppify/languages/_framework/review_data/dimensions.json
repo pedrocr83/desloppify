@@ -19,7 +19,8 @@
     "authorization_consistency",
     "incomplete_migration",
     "package_organization",
-    "design_coherence"
+    "design_coherence",
+    "comment_quality"
   ],
   "dimension_prompts": {
     "naming_quality": {
@@ -132,13 +133,25 @@
         "Docstring bloat: multi-line docstrings on trivial 2-line functions",
         "Pass-through wrapper functions with no added logic (just forward args to another function)",
         "Generic names in domain code: handleData, processItem, doOperation where domain terms exist",
-        "Identical boilerplate error handling copied verbatim across multiple files"
+        "Identical boilerplate error handling copied verbatim across multiple files",
+        "Single-use abstractions: an interface plus one class plus a factory, a strategy registry with one strategy, a base class with one subclass, Manager/Helper/Service classes that only forward calls",
+        "Config objects, enums or constant classes holding one value used in one place",
+        "Checks for states the code cannot reach: type checks on values the code just built, null checks on non-nullable values, re-validation of what the caller already validated",
+        "Hand-rolled standard library: loops that are sum/any/all/max/Counter/defaultdict, `x !== null && x !== undefined ? x : d` instead of `x ?? d`",
+        "Compatibility shims for code that never shipped",
+        "`return await` outside a try block, async functions that only forward"
       ],
       "skip": [
         "Comments explaining WHY (business rules, non-obvious constraints, external dependencies)",
         "Defensive checks at genuine API boundaries (user input, network, file I/O)",
         "Generated code (protobuf, GraphQL codegen, ORM migrations)",
-        "Wrapper functions that add auth, logging, metrics, or caching"
+        "Wrapper functions that add auth, logging, metrics, or caching",
+        "Truthiness vs presence: `if x is not None` is not `if x` when 0, empty or False are valid; `a ?? b` is not `a || b`",
+        "`return await` inside a try: dropping the await skips catch and finally",
+        "Sequential awaits in a loop that enforce rate limits, ordering or transactions",
+        "A sort before itertools.groupby or any order downstream code relies on",
+        "Library swaps that change output (csv line endings, json spacing, round vs Decimal)",
+        "Names with no direct call sites that are reached through string registries, getattr, decorators, `__all__`, entry points, fixtures or templates: search before calling them dead"
       ]
     },
     "high_level_elegance": {
@@ -333,18 +346,26 @@
       ]
     },
     "comment_quality": {
-      "description": "Comments that add value vs mislead or waste space",
+      "description": "Comments, docstrings and README prose that earn their place: why-comments and contracts kept, narration and marketing cut. When suggesting a prose rewrite, list every fact in the original (commands, flags, paths, versions, limits) and keep each one.",
       "look_for": [
         "Stale comments describing behavior the code no longer implements",
         "Restating comments (// increment i above i += 1)",
         "Missing comments on complex/non-obvious code (regex, algorithms, business rules)",
         "Docstring/signature divergence (params in docs not in function)",
-        "TODOs without issue references or dates"
+        "TODOs without issue references or dates",
+        "Comments that narrate the next line (`# loop through rows`), section banners, emoji, changelog notes, commented-out code",
+        "Docstrings that restate the signature (Args: rows (list): the rows) or JSDoc that repeats TypeScript types",
+        "Marketing or filler prose in docstrings, comments and the project README: robust, seamless, powerful, blazing-fast, comprehensive, cutting-edge, leverage, empower, 'it's worth noting', 'made with'",
+        "README sections that claim what cannot be backed (hard-coded coverage badges, speed claims)"
       ],
       "skip": [
-        "Section dividers and organizational comments",
         "License headers",
-        "Type annotations that serve as documentation"
+        "Type annotations that serve as documentation",
+        "Section dividers only when the file is long enough that navigation needs them",
+        "Why-comments: business rules, workarounds, ticket references, ordering constraints, performance or security reasons, 'don't change X because Y'",
+        "Tool directives: noqa, type: ignore, eslint-disable, ts-expect-error, pragma: no cover, go:build, shebangs, license headers",
+        "Docstrings and field comments stating a contract the signature cannot: units, defaults, what None or 0 means, inclusive/exclusive bounds, side effects, raised errors, status codes",
+        "TODOs with an owner, ticket or concrete condition"
       ]
     },
     "authorization_coherence": {

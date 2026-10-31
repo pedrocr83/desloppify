@@ -21,6 +21,7 @@ HOLISTIC_REVIEW_DIMENSIONS: list[str] = [
     "low_level_elegance",
     "design_coherence",
     "initialization_coupling",
+    "comment_quality",
 ]
 
 REVIEW_GUIDANCE = {

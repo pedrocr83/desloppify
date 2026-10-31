@@ -26,4 +26,5 @@ HOLISTIC_REVIEW_DIMENSIONS: list[str] = [
     "high_level_elegance",
     "mid_level_elegance",
     "low_level_elegance",
+    "comment_quality",
 ]

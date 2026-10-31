@@ -34,6 +34,7 @@ SUBJECTIVE_SCORECARD_ORDER_DEFAULT: tuple[str, ...] = (
     "Stale migration",
     "Init coupling",
     "Naming quality",
+    "Comment quality",
     "Logic clarity",
     "Type safety",
     "Contracts",

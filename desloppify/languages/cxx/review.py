@@ -12,6 +12,7 @@ HOLISTIC_REVIEW_DIMENSIONS: list[str] = [
     "abstraction_fitness",
     "api_surface_coherence",
     "design_coherence",
+    "comment_quality",
 ]
 
 REVIEW_GUIDANCE = {

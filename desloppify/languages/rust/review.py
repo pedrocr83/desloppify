@@ -13,6 +13,7 @@ HOLISTIC_REVIEW_DIMENSIONS: list[str] = [
     "test_strategy",
     "api_surface_coherence",
     "design_coherence",
+    "comment_quality",
 ]
 
 REVIEW_GUIDANCE = {

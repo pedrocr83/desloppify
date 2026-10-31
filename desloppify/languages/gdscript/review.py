@@ -10,6 +10,7 @@ HOLISTIC_REVIEW_DIMENSIONS: list[str] = [
     "abstraction_fitness",
     "test_strategy",
     "design_coherence",
+    "comment_quality",
 ]
 
 REVIEW_GUIDANCE = {

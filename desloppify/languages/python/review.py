@@ -38,6 +38,7 @@ HOLISTIC_REVIEW_DIMENSIONS = [
     "low_level_elegance",
     "design_coherence",
     "initialization_coupling",
+    "comment_quality",
 ]
 
 MIGRATION_PATTERN_PAIRS = [

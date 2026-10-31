@@ -326,6 +326,7 @@ class TestPrepareReview:
             "incomplete_migration",
             "package_organization",
             "design_coherence",
+            "comment_quality",
         ]
         assert "system_prompt" in data
         assert len(data["files"]) == 1

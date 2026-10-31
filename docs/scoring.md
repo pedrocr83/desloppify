@@ -56,9 +56,10 @@ The subjective dimensions and their weights within the subjective pool:
 | Structure nav | 5.0 |
 | Error consistency | 3.0 |
 | Naming quality | 2.0 |
+| Comment quality | 2.0 |
 | AI generated debt | 1.0 |
 
-Elegance, contracts, and type safety dominate because they reflect architectural quality and correctness. Naming quality and AI-generated debt are low-weight nudges for polish.
+Elegance, contracts, and type safety dominate because they reflect architectural quality and correctness. Naming quality, comment quality and AI-generated debt are low-weight nudges for polish.
 
 ## How confidence affects scoring
 
