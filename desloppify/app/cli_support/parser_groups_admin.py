@@ -200,6 +200,21 @@ def _add_update_skill_parser(sub) -> None:
     )
 
 
+def _add_conform_parser(sub) -> None:
+    p = sub.add_parser(
+        "conform",
+        help="Report adherence to CODEBASE_INSTRUCTIONS.md per rule",
+    )
+    p.add_argument("--json", action="store_true", help="Output as JSON")
+    p.add_argument("--rule", type=str, default=None, help="Show one rule id (CI-NNN)")
+    p.add_argument(
+        "--status",
+        choices=["open", "all"],
+        default="open",
+        help="open: rules needing attention (default); all: every rule",
+    )
+
+
 def _add_instructions_parser(sub) -> None:
     p = sub.add_parser(
         "instructions",

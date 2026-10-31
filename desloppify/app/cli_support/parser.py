@@ -11,6 +11,7 @@ from importlib.metadata import version as get_version
 from desloppify.app.cli_support.parser_groups import (
     _add_backlog_parser,
     _add_config_parser,
+    _add_conform_parser,
     _add_detect_parser,
     _add_directives_parser,
     _add_dev_parser,
@@ -59,6 +60,7 @@ configure:
   config     Project configuration
   langs      List language plugins
   instructions  Extract/import/show CODEBASE_INSTRUCTIONS.md
+  conform       Per-rule adherence to CODEBASE_INSTRUCTIONS.md
   dev        Developer utilities
   setup         Install bundled global AI skill files
   update-skill  Install/update agent skill document
@@ -76,6 +78,7 @@ examples:
   desloppify review --run-batches --parallel --scan-after-import
   desloppify instructions extract        # evidence packet for CODEBASE_INSTRUCTIONS.md
   desloppify instructions import CODEBASE_INSTRUCTIONS.md
+  desloppify conform --status all        # adherence per rule
 """
 
 
@@ -137,6 +140,7 @@ def create_parser(*, langs: list[str], detector_names: list[str]) -> argparse.Ar
     add_plan_parser(sub)
     # investigate
     _add_show_parser(sub)
+    _add_conform_parser(sub)
     _add_tree_parser(sub)
     _add_viz_parser(sub)
     _add_detect_parser(sub, detector_names)

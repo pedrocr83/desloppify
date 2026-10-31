@@ -8,7 +8,7 @@ description: >
 ---
 
 <!-- desloppify-begin -->
-<!-- desloppify-skill-version: 9 -->
+<!-- desloppify-skill-version: 10 -->
 
 # Desloppify
 
@@ -249,6 +249,19 @@ desloppify instructions show                       # print it, warn if stale
 ```
 
 Run `extract` when the user asks for the project's conventions, rules or a CODEBASE_INSTRUCTIONS.md, or before `conform`. Re-run it to revise: keep surviving rule ids, never reuse a retired id.
+
+#### Conform
+
+Once the file is imported, `desloppify review --prepare` includes the `instruction_adherence` dimension (weight 8.0, display "Rule adherence"). Its findings use `CI-NNN::slug` identifiers; `CI-NNN::rule-unclear` means the reviewer could not apply that rule, so fix the rule text and re-import. Findings naming a rule id that is not in the file are dropped at import.
+
+```bash
+desloppify conform                 # rules that need attention: violated, unclear, unassessed
+desloppify conform --status all    # every rule with open/done/wontfix counts
+desloppify conform --rule CI-012   # one rule
+desloppify conform --json          # for scripts
+```
+
+Violations are ordinary findings: fix them through `next` and `resolve`. Re-read the rule in CODEBASE_INSTRUCTIONS.md before fixing, and use the deslop workflow when the rule is about prose.
 
 ### Quick reference
 

@@ -14,6 +14,7 @@ def _build_handlers() -> dict[str, CommandHandler]:
     from desloppify.app.commands.autofix import cmd_autofix
     from desloppify.app.commands.backlog import cmd_backlog
     from desloppify.app.commands.config import cmd_config
+    from desloppify.app.commands.conform import cmd_conform
     from desloppify.app.commands.detect import cmd_detect
     from desloppify.app.commands.directives import cmd_directives
     from desloppify.app.commands.dev import cmd_dev
@@ -51,6 +52,7 @@ def _build_handlers() -> dict[str, CommandHandler]:
         "zone": cmd_zone,
         "review": cmd_review,
         "config": cmd_config,
+        "conform": cmd_conform,
         "directives": cmd_directives,
         "instructions": cmd_instructions,
         "dev": cmd_dev,

@@ -30,7 +30,7 @@ def test_deslop_doc_shape():
 
 def test_skill_doc_points_at_deslop():
     text = (_DOCS / "SKILL.md").read_text(encoding="utf-8")
-    assert SKILL_VERSION == 9
+    assert SKILL_VERSION == 10
     assert f"<!-- desloppify-skill-version: {SKILL_VERSION} -->" in text
     assert "Fixing slop findings" in text
     assert "desloppify-deslop" in text

@@ -6,6 +6,7 @@ import argparse
 
 from desloppify.app.cli_support.parser_groups_admin import (  # noqa: F401 (re-exports)
     _add_config_parser,
+    _add_conform_parser,
     _add_detect_parser,
     _add_directives_parser,
     _add_instructions_parser,
@@ -27,6 +28,7 @@ _STATUS_CHOICES = sorted(issue_status_tokens(include_all=True))
 __all__ = [
     "_add_backlog_parser",
     "_add_config_parser",
+    "_add_conform_parser",
     "_add_detect_parser",
     "_add_directives_parser",
     "_add_instructions_parser",
