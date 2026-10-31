@@ -101,9 +101,13 @@ def _resolve_allowed_subjective_dimensions(
             load_dimensions_for_lang,
         )
 
+        from desloppify.intelligence.review.dimensions.activation import (
+            with_conditional_dimensions,
+        )
+
         dims, _, _ = load_dimensions_for_lang(lang_name)
         if dims:
-            return set(dims)
+            return set(with_conditional_dimensions(dims, state))
     except (ImportError, AttributeError) as exc:
         _ = exc
     return None

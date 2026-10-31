@@ -158,7 +158,7 @@ def _prepare_packet_scope(
     )
     scan_path = str(getattr(args, "path", ".") or ".")
     packet_dimensions = normalize_dimension_list(packet.get("dimensions", []))
-    scored_dimensions = scored_dimensions_for_lang(lang.name)
+    scored_dimensions = scored_dimensions_for_lang(lang.name, state=state)
     print_preflight_dimension_scope_notice(
         selected_dims=packet_dimensions,
         scored_dims=scored_dimensions,

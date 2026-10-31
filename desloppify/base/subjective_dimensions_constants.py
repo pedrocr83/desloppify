@@ -33,6 +33,10 @@ DISPLAY_NAMES: dict[str, str] = {
 
 LEGACY_DISPLAY_NAMES: dict[str, str] = DISPLAY_NAMES
 
+# Dimensions that join the scored pool only when the project opts in (see
+# intelligence/review/dimensions/activation.py). Never defaults.
+CONDITIONAL_DIMENSIONS: tuple[str, ...] = ("instruction_adherence",)
+
 LEGACY_SUBJECTIVE_WEIGHTS_BY_DISPLAY: dict[str, float] = {
     "high elegance": 22.0,
     "mid elegance": 22.0,
@@ -92,6 +96,7 @@ def normalize_lang_name(lang_name: str | None) -> str | None:
 
 
 __all__ = [
+    "CONDITIONAL_DIMENSIONS",
     "DISPLAY_NAMES",
     "LEGACY_DISPLAY_NAMES",
     "LEGACY_RESET_ON_SCAN_DIMENSIONS",

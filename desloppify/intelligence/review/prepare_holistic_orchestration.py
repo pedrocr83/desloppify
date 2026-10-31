@@ -8,6 +8,10 @@ from typing import Any
 
 from desloppify.intelligence.review._context.models import HolisticContext
 from desloppify.intelligence.review._prepare.helpers import HOLISTIC_WORKFLOW
+from desloppify.intelligence.review.dimensions.activation import (
+    instructions_payload,
+    with_conditional_dimensions,
+)
 
 from .prepare_holistic_batches import HolisticBatchAssemblyDependencies
 from .prepare_holistic_payload_parts import (
@@ -101,6 +105,7 @@ def _resolve_dimension_context(
     lang_name: str,
     options: object,
     *,
+    state: dict,
     load_dimensions_for_lang_fn,
     resolve_dimensions_fn,
     get_lang_guidance_fn,
@@ -110,7 +115,7 @@ def _resolve_dimension_context(
     _, per_file_prompts, _ = load_dimensions_for_lang_fn(lang_name)
     dims = resolve_dimensions_fn(
         cli_dimensions=options.dimensions,
-        default_dimensions=default_dims,
+        default_dimensions=with_conditional_dimensions(default_dims, state),
     )
     lang_guide = get_lang_guidance_fn(lang_name)
     valid_dims = set(holistic_prompts) | set(per_file_prompts)
@@ -155,6 +160,7 @@ def prepare_holistic_review_payload(
     dim_ctx = _resolve_dimension_context(
         lang.name,
         options,
+        state=state,
         load_dimensions_for_lang_fn=deps.load_dimensions_for_lang_fn,
         resolve_dimensions_fn=deps.resolve_dimensions_fn,
         get_lang_guidance_fn=deps.get_lang_guidance_fn,
@@ -199,6 +205,11 @@ def prepare_holistic_review_payload(
             "default": dim_ctx.invalid_default,
         },
     }
+
+    if "instruction_adherence" in dim_ctx.dims:
+        instructions = instructions_payload(state)
+        if instructions is not None:
+            payload["instructions"] = instructions
 
     batches = _attach_issue_history_context(
         payload,

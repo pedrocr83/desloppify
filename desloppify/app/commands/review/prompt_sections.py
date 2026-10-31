@@ -549,6 +549,21 @@ def render_scoring_frame() -> str:
     )
 
 
+def render_instructions_focus(dim_set: set[str]) -> str:
+    if "instruction_adherence" not in dim_set:
+        return ""
+    return (
+        "Instruction adherence rubric:\n"
+        "  The project's own standard is CODEBASE_INSTRUCTIONS.md at the repo root (also copied "
+        "into the packet under `instructions.text`). Each `CI-NNN` bullet is one rule. Score the "
+        "code against those rules only; this dimension never invents conventions.\n"
+        "  Every instruction_adherence finding uses the identifier `CI-NNN::short-slug` where "
+        "CI-NNN is the rule it breaks. A rule you cannot apply (vacuous, contradictory, "
+        "untestable) gets one finding `CI-NNN::rule-unclear` at confidence low; such rules do "
+        "not lower the score."
+    )
+
+
 def render_scan_evidence_note() -> str:
     return (
         "Mechanical scan evidence — navigation aid, not scoring evidence:\n"

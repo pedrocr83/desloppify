@@ -21,6 +21,7 @@ from desloppify.base.subjective_dimensions_providers import (
     default_load_dimensions_payload_for_lang,
 )
 from desloppify.base.subjective_dimensions_constants import (
+    CONDITIONAL_DIMENSIONS,
     normalize_dimension_name as _normalize_dimension_name,
 )
 from desloppify.base.subjective_dimensions_constants import (
@@ -72,8 +73,8 @@ def reset_subjective_dimension_providers() -> None:
 
 
 def default_dimension_keys() -> tuple[str, ...]:
-    """Return canonical default subjective dimension keys."""
-    return tuple(sorted(DISPLAY_NAMES.keys()))
+    """Return canonical default subjective dimension keys (conditional ones excluded)."""
+    return tuple(sorted(key for key in DISPLAY_NAMES if key not in CONDITIONAL_DIMENSIONS))
 
 
 def default_dimension_keys_for_lang(lang_name: str | None) -> tuple[str, ...]:

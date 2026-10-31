@@ -6,13 +6,15 @@ import shlex
 import sys
 
 from desloppify.base.exception_sets import CommandError, PacketValidationError
+from desloppify.intelligence.review.dimensions.activation import (
+    with_conditional_dimensions,
+)
 from desloppify.intelligence.review.dimensions.data import load_dimensions_for_lang
 from desloppify.intelligence.review.feedback_contract import (
     LEGACY_REVIEW_QUALITY_HIGH_SCORE_MISSING_ISSUES_KEY,
     REVIEW_QUALITY_HIGH_SCORE_MISSING_ISSUES_KEY,
     TRUSTED_IMPORT_COVERAGE_OVERRIDE_FLAG,
 )
-
 
 _SUPPORTED_RUNNERS = {"codex", "opencode", "rovodev"}
 
@@ -113,13 +115,20 @@ def normalize_dimension_list(raw: object) -> list[str]:
     return out
 
 
-def scored_dimensions_for_lang(lang_name: str) -> list[str]:
-    """Return default scored subjective dimensions for one language."""
+def scored_dimensions_for_lang(lang_name: str, *, state: dict | None = None) -> list[str]:
+    """Return default scored subjective dimensions for one language.
+
+    With *state*, conditional dimensions that are active for the project
+    (instruction_adherence while CODEBASE_INSTRUCTIONS.md is imported) are included.
+    """
     try:
         default_dims, _, _ = load_dimensions_for_lang(lang_name)
     except (ValueError, RuntimeError):
         return []
-    return normalize_dimension_list(default_dims)
+    dims = normalize_dimension_list(default_dims)
+    if state is not None:
+        dims = with_conditional_dimensions(dims, state)
+    return dims
 
 
 def missing_scored_dimensions(

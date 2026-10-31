@@ -326,7 +326,7 @@ def _load_or_prepare_packet(
         lang_obj = lang
         lang_name = getattr(lang_obj, "name", None) or str(getattr(lang_obj, "lang", ""))
         if lang_name:
-            valid_dims = set(scored_dimensions_for_lang(lang_name))
+            valid_dims = set(scored_dimensions_for_lang(lang_name, state=state))
             if valid_dims:
                 invalid = sorted(dims - valid_dims)
                 if invalid:
@@ -558,7 +558,7 @@ def do_import_run(
     )
     packet_dimensions = normalize_dimension_list(packet.get("dimensions", []))
     lang_name = getattr(lang, "name", None) or str(getattr(lang, "lang", ""))
-    scored_dimensions = scored_dimensions_for_lang(lang_name) if lang_name else []
+    scored_dimensions = scored_dimensions_for_lang(lang_name, state=state) if lang_name else []
     merged_path, missing_after_import = _merge_and_write_results(
         merge_batch_results_fn=_merge_batch_results,
         build_import_provenance_fn=build_batch_import_provenance,

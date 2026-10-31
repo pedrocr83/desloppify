@@ -11,9 +11,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from desloppify.base.discovery.paths import get_project_root
-from desloppify.engine._state.instructions import instructions_file_matches
+from desloppify.base.subjective_dimensions_constants import CONDITIONAL_DIMENSIONS
+from desloppify.engine._state.instructions import (
+    get_instructions_record,
+    instructions_file_matches,
+)
 
-CONDITIONAL_DIMENSIONS: tuple[str, ...] = ("instruction_adherence",)
 
 
 def conditional_dimensions(state: object, *, root: Path | None = None) -> list[str]:
@@ -37,4 +40,24 @@ def with_conditional_dimensions(
     return out
 
 
-__all__ = ["CONDITIONAL_DIMENSIONS", "conditional_dimensions", "with_conditional_dimensions"]
+def instructions_payload(state: object, *, root: Path | None = None) -> dict[str, object] | None:
+    """Packet-level copy of the active instructions file, or None when inactive."""
+    if not conditional_dimensions(state, root=root):
+        return None
+    record = get_instructions_record(state)
+    if record is None:
+        return None
+    project_root = root if root is not None else get_project_root()
+    try:
+        text = (project_root / record["path"]).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    return {"path": record["path"], "rule_ids": list(record["rule_ids"]), "text": text}
+
+
+__all__ = [
+    "CONDITIONAL_DIMENSIONS",
+    "conditional_dimensions",
+    "instructions_payload",
+    "with_conditional_dimensions",
+]
